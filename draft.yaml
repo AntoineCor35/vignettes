@@ -1,0 +1,27 @@
+models:
+  Category:
+    name: string
+    enabled: boolean
+    relationships:
+      hasMany: Card
+
+  CardSize:
+    name: string
+    width: integer
+    height: integer
+    relationships:
+      hasMany: Card
+
+  Card:
+    title: string
+    image: string
+    music: string
+    video: string
+    description: string
+    deleted: boolean default:false
+    creation_date: date
+    user_id: id foreign
+    category_id: id foreign
+    card_size_id: id foreign
+    relationships:
+      belongsTo: User, Category, CardSize
