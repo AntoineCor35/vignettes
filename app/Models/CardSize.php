@@ -17,8 +17,6 @@ class CardSize extends Model
      */
     protected $fillable = [
         'name',
-        'width',
-        'height',
     ];
 
     /**

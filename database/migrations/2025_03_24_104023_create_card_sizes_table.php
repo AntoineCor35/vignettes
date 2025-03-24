@@ -14,8 +14,6 @@ return new class extends Migration
         Schema::create('card_sizes', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->integer('width');
-            $table->integer('height');
             $table->timestamps();
         });
     }

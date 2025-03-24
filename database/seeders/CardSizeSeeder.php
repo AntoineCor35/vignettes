@@ -12,6 +12,18 @@ class CardSizeSeeder extends Seeder
      */
     public function run(): void
     {
-        CardSize::factory()->count(5)->create();
+        // Créer les 3 tailles de cartes par défaut
+        $cardSizes = [
+            'Petit',
+            'Large',
+            'Grand'
+        ];
+
+        foreach ($cardSizes as $name) {
+            CardSize::updateOrCreate(
+                ['name' => $name],
+                ['name' => $name]
+            );
+        }
     }
 }
