@@ -16,6 +16,14 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
+                    <x-nav-link :href="route('cards.index')" :active="request()->routeIs('cards.index')">
+                        {{ __('Mes Cartes') }}
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('cards.create')" :active="request()->routeIs('cards.create')">
+                        {{ __('Créer une Carte') }}
+                    </x-nav-link>
+
                     @if (Auth::user() && Auth::user()->isAdmin())
                         <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
                             {{ __('Gestion des utilisateurs') }}
@@ -83,6 +91,14 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('cards.index')" :active="request()->routeIs('cards.index')">
+                {{ __('Mes Cartes') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('cards.create')" :active="request()->routeIs('cards.create')">
+                {{ __('Créer une Carte') }}
             </x-responsive-nav-link>
 
             @if (Auth::user() && Auth::user()->isAdmin())

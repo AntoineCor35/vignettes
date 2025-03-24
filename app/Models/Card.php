@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Card extends Model
+class Card extends Model implements HasMedia
 {
     use HasFactory;
+    use InteractsWithMedia;
 
     /**
      * The attributes that are mass assignable.
@@ -41,6 +44,21 @@ class Card extends Model
         'category_id' => 'integer',
         'card_size_id' => 'integer',
     ];
+
+    /**
+     * Register media collections for the card
+     */
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('images')
+            ->singleFile();
+
+        $this->addMediaCollection('videos')
+            ->singleFile();
+
+        $this->addMediaCollection('music')
+            ->singleFile();
+    }
 
     public function user(): BelongsTo
     {
