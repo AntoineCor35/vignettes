@@ -16,9 +16,6 @@ return new class extends Migration
         Schema::create('cards', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('image');
-            $table->string('music');
-            $table->string('video');
             $table->string('description');
             $table->boolean('deleted')->default(false);
             $table->date('creation_date');

@@ -17,7 +17,10 @@ class CardController extends Controller
      */
     public function index()
     {
-        $cards = Card::with('media')->get();
+        $cards = Card::with('media')
+            ->where('user_id', Auth::id())
+            ->where('deleted', false)
+            ->get();
         return view('cards.index', compact('cards'));
     }
 
@@ -82,6 +85,11 @@ class CardController extends Controller
      */
     public function show(Card $card)
     {
+        // Vérifier que la carte appartient à l'utilisateur connecté
+        if ($card->user_id !== Auth::id()) {
+            abort(403, 'Accès non autorisé.');
+        }
+
         return view('cards.show', compact('card'));
     }
 
@@ -90,6 +98,11 @@ class CardController extends Controller
      */
     public function edit(Card $card)
     {
+        // Vérifier que la carte appartient à l'utilisateur connecté
+        if ($card->user_id !== Auth::id()) {
+            abort(403, 'Accès non autorisé.');
+        }
+
         $categories = Category::all();
         $cardSizes = CardSize::all();
 
@@ -101,6 +114,11 @@ class CardController extends Controller
      */
     public function update(Request $request, Card $card)
     {
+        // Vérifier que la carte appartient à l'utilisateur connecté
+        if ($card->user_id !== Auth::id()) {
+            abort(403, 'Accès non autorisé.');
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
