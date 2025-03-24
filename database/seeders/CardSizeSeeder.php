@@ -22,7 +22,6 @@ class CardSizeSeeder extends Seeder
         foreach ($cardSizes as $name) {
             CardSize::updateOrCreate(
                 ['name' => $name],
-                ['name' => $name]
             );
         }
     }

@@ -9,18 +9,36 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class CardController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $cards = Card::with('media')
-            ->where('user_id', Auth::id())
-            ->where('deleted', false)
-            ->get();
+        // Vérifie si l'utilisateur est autorisé à voir les cartes
+        $this->authorize('viewAny', Card::class);
+
+        $user = Auth::user();
+
+        // Les administrateurs peuvent voir toutes les cartes
+        if ($user->role === 'admin') {
+            $cards = Card::with('media')
+                ->where('deleted', false)
+                ->get();
+        } else {
+            // Les utilisateurs normaux ne voient que leurs propres cartes
+            $cards = Card::with('media')
+                ->where('user_id', Auth::id())
+                ->where('deleted', false)
+                ->get();
+        }
+
         return view('cards.index', compact('cards'));
     }
 
@@ -40,6 +58,9 @@ class CardController extends Controller
      */
     public function store(Request $request)
     {
+        // Vérifie si l'utilisateur est autorisé à créer des cartes
+        $this->authorize('create', Card::class);
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -54,7 +75,16 @@ class CardController extends Controller
         $card->title = $validated['title'];
         $card->description = $validated['description'];
         $card->category_id = $validated['category_id'];
-        $card->card_size_id = $validated['card_size_id'];
+
+        // Vérifie si l'utilisateur est autorisé à changer la taille des cartes
+        if (Gate::allows('change-card-size')) {
+            $card->card_size_id = $validated['card_size_id'];
+        } else {
+            // Sinon, utilise la taille petite par défaut
+            $smallSize = CardSize::where('name', 'Petit')->first();
+            $card->card_size_id = $smallSize ? $smallSize->id : $validated['card_size_id'];
+        }
+
         $card->user_id = Auth::id();
         $card->creation_date = now();
         $card->deleted = false;
@@ -85,10 +115,8 @@ class CardController extends Controller
      */
     public function show(Card $card)
     {
-        // Vérifier que la carte appartient à l'utilisateur connecté
-        if ($card->user_id !== Auth::id()) {
-            abort(403, 'Accès non autorisé.');
-        }
+        // Vérifie si l'utilisateur est autorisé à voir la carte
+        $this->authorize('view', $card);
 
         return view('cards.show', compact('card'));
     }
@@ -98,10 +126,8 @@ class CardController extends Controller
      */
     public function edit(Card $card)
     {
-        // Vérifier que la carte appartient à l'utilisateur connecté
-        if ($card->user_id !== Auth::id()) {
-            abort(403, 'Accès non autorisé.');
-        }
+        // Vérifie si l'utilisateur est autorisé à éditer la carte
+        $this->authorize('update', $card);
 
         $categories = Category::all();
         $cardSizes = CardSize::all();
@@ -114,10 +140,8 @@ class CardController extends Controller
      */
     public function update(Request $request, Card $card)
     {
-        // Vérifier que la carte appartient à l'utilisateur connecté
-        if ($card->user_id !== Auth::id()) {
-            abort(403, 'Accès non autorisé.');
-        }
+        // Vérifie si l'utilisateur est autorisé à mettre à jour la carte
+        $this->authorize('update', $card);
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -132,7 +156,12 @@ class CardController extends Controller
         $card->title = $validated['title'];
         $card->description = $validated['description'];
         $card->category_id = $validated['category_id'];
-        $card->card_size_id = $validated['card_size_id'];
+
+        // Vérifie si l'utilisateur est autorisé à changer la taille des cartes
+        if (Gate::allows('change-card-size')) {
+            $card->card_size_id = $validated['card_size_id'];
+        }
+
         $card->save();
 
         // Gérer les médias avec Spatie
@@ -163,6 +192,9 @@ class CardController extends Controller
      */
     public function destroy(Card $card)
     {
+        // Vérifie si l'utilisateur est autorisé à supprimer la carte
+        $this->authorize('delete', $card);
+
         // Suppression logique (soft delete)
         $card->deleted = true;
         $card->save();

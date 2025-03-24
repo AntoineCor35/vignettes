@@ -44,17 +44,31 @@
         {{-- Taille de la carte --}}
         <div>
             <x-input-label for="card_size_id" :value="__('Taille de la carte')" />
-            <select id="card_size_id" name="card_size_id"
-                class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
-                required>
-                <option value="">Sélectionner une taille</option>
-                @foreach ($cardSizes as $size)
-                    <option value="{{ $size->id }}"
-                        {{ old('card_size_id', isset($card) ? $card->card_size_id : '') == $size->id ? 'selected' : '' }}>
-                        {{ $size->name }} ({{ $size->width }}x{{ $size->height }})
-                    </option>
-                @endforeach
-            </select>
+            @if (auth()->user()->role === 'admin')
+                <select id="card_size_id" name="card_size_id"
+                    class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                    required>
+                    <option value="">Sélectionner une taille</option>
+                    @foreach ($cardSizes as $size)
+                        <option value="{{ $size->id }}"
+                            {{ old('card_size_id', isset($card) ? $card->card_size_id : '') == $size->id ? 'selected' : '' }}>
+                            {{ $size->name }}
+                        </option>
+                    @endforeach
+                </select>
+            @else
+                <div class="mt-1 w-full border-gray-300 rounded-md shadow-sm p-2 bg-gray-100">
+                    @if (isset($card) && $card->cardSize)
+                        {{ $card->cardSize->name }} <span class="text-gray-500">(La taille ne peut être modifiée que par
+                            un administrateur)</span>
+                    @else
+                        Petit <span class="text-gray-500">(La taille par défaut, ne peut être modifiée que par un
+                            administrateur)</span>
+                    @endif
+                    <input type="hidden" name="card_size_id"
+                        value="{{ isset($card) ? $card->card_size_id : $cardSizes->where('name', 'Petit')->first()->id ?? $cardSizes->first()->id }}">
+                </div>
+            @endif
             <x-input-error :messages="$errors->get('card_size_id')" class="mt-2" />
         </div>
 

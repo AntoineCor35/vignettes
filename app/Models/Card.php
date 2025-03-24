@@ -14,6 +14,26 @@ class Card extends Model implements HasMedia
     use InteractsWithMedia;
 
     /**
+     * The "booting" method of the model.
+     *
+     * @return void
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($card) {
+            // Si aucune taille de carte n'est définie, utiliser la taille "Petit" par défaut
+            if (empty($card->card_size_id)) {
+                $smallSize = CardSize::where('name', 'Petit')->first();
+                if ($smallSize) {
+                    $card->card_size_id = $smallSize->id;
+                }
+            }
+        });
+    }
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array
