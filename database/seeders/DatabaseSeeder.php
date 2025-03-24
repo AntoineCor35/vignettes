@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
         // Exécuter les autres seeders
         $this->call([
             CardSizeSeeder::class,
-            // CategorySeeder::class, // Désactivé pour l'instant, utilisez l'interface d'administration pour créer des catégories
+            CategorySeeder::class,
         ]);
     }
 }

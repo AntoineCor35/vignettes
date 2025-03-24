@@ -15,7 +15,7 @@ class CardSizeSeeder extends Seeder
         // Créer les 3 tailles de cartes par défaut
         $cardSizes = [
             'Petit',
-            'Large',
+            'Moyen',
             'Grand'
         ];
 
