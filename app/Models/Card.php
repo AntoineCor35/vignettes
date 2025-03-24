@@ -7,23 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Spatie\Image\Enums\Fit;
 
 class Card extends Model implements HasMedia
 {
     use HasFactory;
     use InteractsWithMedia;
 
-    /**
-     * The "booting" method of the model.
-     *
-     * @return void
-     */
     protected static function boot()
     {
         parent::boot();
 
         static::creating(function ($card) {
-            // Si aucune taille de carte n'est définie, utiliser la taille "Petit" par défaut
             if (empty($card->card_size_id)) {
                 $smallSize = CardSize::where('name', 'Petit')->first();
                 if ($smallSize) {
@@ -33,11 +29,6 @@ class Card extends Model implements HasMedia
         });
     }
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'title',
         'image',
@@ -51,11 +42,6 @@ class Card extends Model implements HasMedia
         'card_size_id',
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
     protected $casts = [
         'id' => 'integer',
         'deleted' => 'boolean',
@@ -65,9 +51,6 @@ class Card extends Model implements HasMedia
         'card_size_id' => 'integer',
     ];
 
-    /**
-     * Register media collections for the card
-     */
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('images')
@@ -78,6 +61,48 @@ class Card extends Model implements HasMedia
 
         $this->addMediaCollection('music')
             ->singleFile();
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->fit(Fit::Contain, 300, 300)
+            ->nonQueued();
+
+        $this->addMediaConversion('small')
+            ->fit(Fit::Contain, 150, 150)
+            ->nonQueued();
+
+        $this->addMediaConversion('grid')
+            ->fit(Fit::Crop, 400, 300)
+            ->nonQueued();
+
+        if ($media && $media->collection_name === 'videos') {
+            $ffmpegPath = exec('which ffmpeg');
+
+            if (!empty($ffmpegPath)) {
+                $this->addMediaConversion('thumb')
+                    ->extractVideoFrame(0)
+                    ->fit(Fit::Contain, 300, 300)
+                    ->nonQueued();
+
+                $this->addMediaConversion('grid')
+                    ->extractVideoFrame(1)
+                    ->fit(Fit::Crop, 400, 300)
+                    ->nonQueued();
+            }
+        }
+    }
+
+    public function getThumbnailUrl($collection = 'images', $conversion = 'thumb'): string
+    {
+        if ($this->hasMedia($collection)) {
+            return $this->getFirstMediaUrl($collection, $conversion);
+        } elseif ($this->hasMedia('music')) {
+            return asset('images/audio-thumbnail.png');
+        }
+
+        return asset('images/default-thumbnail.png');
     }
 
     public function user(): BelongsTo

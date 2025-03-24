@@ -61,6 +61,18 @@ class CardController extends Controller
         // Vérifie si l'utilisateur est autorisé à créer des cartes
         $this->authorize('create', Card::class);
 
+        // Vérifier les combinaisons de médias autorisées
+        $hasImage = $request->hasFile('image');
+        $hasVideo = $request->hasFile('video');
+        $hasMusic = $request->hasFile('music');
+
+        // Combinaisons invalides : (vidéo + image) ou (vidéo + son)
+        if (($hasVideo && $hasImage) || ($hasVideo && $hasMusic)) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['media' => 'La vidéo ne peut pas être combinée avec d\'autres médias. Utilisez une vidéo seule ou une combinaison image+son.']);
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -91,17 +103,17 @@ class CardController extends Controller
         $card->save();
 
         // Gérer les médias avec Spatie
-        if ($request->hasFile('image')) {
+        if ($hasImage) {
             $card->addMediaFromRequest('image')
                 ->toMediaCollection('images');
         }
 
-        if ($request->hasFile('video')) {
+        if ($hasVideo) {
             $card->addMediaFromRequest('video')
                 ->toMediaCollection('videos');
         }
 
-        if ($request->hasFile('music')) {
+        if ($hasMusic) {
             $card->addMediaFromRequest('music')
                 ->toMediaCollection('music');
         }
@@ -143,6 +155,33 @@ class CardController extends Controller
         // Vérifie si l'utilisateur est autorisé à mettre à jour la carte
         $this->authorize('update', $card);
 
+        // Vérifier les combinaisons de médias
+        $hasImageRequest = $request->hasFile('image');
+        $hasVideoRequest = $request->hasFile('video');
+        $hasMusicRequest = $request->hasFile('music');
+
+        // Suppression des médias demandée
+        $removeImage = $request->has('remove_image') && $request->remove_image == 1;
+        $removeVideo = $request->has('remove_video') && $request->remove_video == 1;
+        $removeMusic = $request->has('remove_music') && $request->remove_music == 1;
+
+        // État actuel des médias (en tenant compte des demandes de suppression)
+        $hasImageCurrent = $card->hasMedia('images') && !$removeImage;
+        $hasVideoCurrent = $card->hasMedia('videos') && !$removeVideo;
+        $hasMusicCurrent = $card->hasMedia('music') && !$removeMusic;
+
+        // Futur état des médias
+        $willHaveImage = $hasImageCurrent || $hasImageRequest;
+        $willHaveVideo = $hasVideoCurrent || $hasVideoRequest;
+        $willHaveMusic = $hasMusicCurrent || $hasMusicRequest;
+
+        // Vérification des combinaisons invalides : (vidéo + image) ou (vidéo + son)
+        if (($willHaveVideo && $willHaveImage) || ($willHaveVideo && $willHaveMusic)) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['media' => 'La vidéo ne peut pas être combinée avec d\'autres médias. Utilisez une vidéo seule ou une combinaison image+son.']);
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
@@ -164,23 +203,41 @@ class CardController extends Controller
 
         $card->save();
 
-        // Gérer les médias avec Spatie
-        if ($request->hasFile('image')) {
+        // Gérer la suppression des médias si demandé
+        if ($removeImage) {
             $card->clearMediaCollection('images');
-            $card->addMediaFromRequest('image')
-                ->toMediaCollection('images');
         }
 
-        if ($request->hasFile('video')) {
+        if ($removeVideo) {
             $card->clearMediaCollection('videos');
+        }
+
+        if ($removeMusic) {
+            $card->clearMediaCollection('music');
+        }
+
+        // Gérer les médias avec Spatie
+        if ($hasVideoRequest) {
+            // Si on ajoute une vidéo, supprimer tous les autres médias
+            $card->clearMediaCollection('images');
+            $card->clearMediaCollection('music');
+            $card->clearMediaCollection('videos');
+
             $card->addMediaFromRequest('video')
                 ->toMediaCollection('videos');
-        }
+        } else {
+            // Sinon, traiter les autres médias
+            if ($hasImageRequest) {
+                $card->clearMediaCollection('images');
+                $card->addMediaFromRequest('image')
+                    ->toMediaCollection('images');
+            }
 
-        if ($request->hasFile('music')) {
-            $card->clearMediaCollection('music');
-            $card->addMediaFromRequest('music')
-                ->toMediaCollection('music');
+            if ($hasMusicRequest) {
+                $card->clearMediaCollection('music');
+                $card->addMediaFromRequest('music')
+                    ->toMediaCollection('music');
+            }
         }
 
         return redirect()->route('cards.show', $card)

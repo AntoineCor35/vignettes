@@ -118,11 +118,35 @@
                             style="background-color: #{{ dechex(crc32($card->title)) }};">
 
                             @if ($card->getFirstMedia('images'))
-                                <img src="{{ $card->getFirstMedia('images')->getUrl() }}" alt="{{ $card->title }}"
+                                <img src="{{ $card->getFirstMediaUrl('images', 'grid') }}" alt="{{ $card->title }}"
                                     class="h-full w-full object-cover card-image-hover">
+                            @elseif ($card->hasMedia('videos'))
+                                <div class="relative h-full w-full">
+                                    @if ($card->getFirstMedia('videos')->hasGeneratedConversion('grid'))
+                                        <img src="{{ $card->getFirstMedia('videos')->getUrl('grid') }}"
+                                            alt="{{ $card->title }}"
+                                            class="h-full w-full object-cover card-image-hover">
+                                    @else
+                                        <div class="flex h-full w-full items-center justify-center bg-gray-200">
+                                            <span class="text-gray-500">Aperçu vidéo</span>
+                                        </div>
+                                    @endif
+                                </div>
+                            @elseif ($card->hasMedia('music'))
+                                <div class="flex h-full w-full items-center justify-center bg-gray-100">
+                                    <div class="text-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                            class="h-16 w-16 text-indigo-400 mx-auto" fill="none" viewBox="0 0 24 24"
+                                            stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                                        </svg>
+                                        <span class="text-xs text-gray-700">Fichier audio</span>
+                                    </div>
+                                </div>
                             @else
                                 <div class="flex h-full w-full items-center justify-center bg-gray-200">
-                                    <span class="text-gray-500">No Image</span>
+                                    <span class="text-gray-500">Aucun média</span>
                                 </div>
                             @endif
 
