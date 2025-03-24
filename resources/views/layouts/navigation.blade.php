@@ -24,9 +24,13 @@
                         {{ __('Créer une Carte') }}
                     </x-nav-link>
 
-                    @if (Auth::user() && Auth::user()->isAdmin())
+                    @if (Auth::user() && Auth::user()->role === 'admin')
                         <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
                             {{ __('Gestion des utilisateurs') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
+                            {{ __('Gestion des catégories') }}
                         </x-nav-link>
                     @endif
                 </div>
@@ -101,9 +105,13 @@
                 {{ __('Créer une Carte') }}
             </x-responsive-nav-link>
 
-            @if (Auth::user() && Auth::user()->isAdmin())
+            @if (Auth::user() && Auth::user()->role === 'admin')
                 <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
                     {{ __('Gestion des utilisateurs') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
+                    {{ __('Gestion des catégories') }}
                 </x-responsive-nav-link>
             @endif
         </div>

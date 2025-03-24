@@ -2,11 +2,16 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\CardController;
 use Illuminate\Support\Facades\Route;
+use App\Models\Card;
 
 Route::get('/', function () {
-    return view('welcome');
+    $cards = Card::with(['media', 'cardSize', 'category'])
+        ->where('deleted', false)
+        ->get();
+    return view('welcome', compact('cards'));
 });
 
 Route::get('/dashboard', function () {
@@ -27,6 +32,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::patch('/users/{user}/role', [UserController::class, 'updateRole'])->name('users.update.role');
+
+    // Gestion des catégories
+    Route::resource('categories', CategoryController::class);
 });
 
 require __DIR__ . '/auth.php';
