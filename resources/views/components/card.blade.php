@@ -75,25 +75,9 @@
                     class="w-full h-full object-cover" />
             @elseif ($card->hasMedia('videos'))
                 <div class="relative w-full h-full bg-black flex items-center justify-center">
-                    @if ($card->getFirstMedia('videos')->hasGeneratedConversion('thumb'))
-                        <img src="{{ $card->getFirstMedia('videos')->getUrl('thumb') }}" alt="Aperçu vidéo"
-                            class="max-w-full max-h-full object-contain" />
-                    @else
-                        <div class="bg-gray-200 w-full h-full flex items-center justify-center">
-                            <span class="text-gray-500">Aperçu en cours de génération</span>
-                        </div>
-                    @endif
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <div class="w-16 h-16 bg-white bg-opacity-75 rounded-full flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-600" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                    </div>
+                    <video src="{{ $card->getFirstMedia('videos')->getUrl() }}"
+                        class="max-w-full max-h-full object-contain" controls preload="metadata"
+                        poster="{{ $card->getFirstMedia('videos')->hasGeneratedConversion('thumb') ? $card->getFirstMedia('videos')->getUrl('thumb') : '' }}"></video>
                 </div>
             @elseif ($card->hasMedia('music'))
                 <div class="w-full h-full bg-white/80 flex items-center justify-center">
