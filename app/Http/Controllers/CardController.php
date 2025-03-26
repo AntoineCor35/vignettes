@@ -7,8 +7,6 @@ use App\Models\Category;
 use App\Models\CardSize;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -16,23 +14,17 @@ class CardController extends Controller
 {
     use AuthorizesRequests;
 
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        // Vérifie si l'utilisateur est autorisé à voir les cartes
         $this->authorize('viewAny', Card::class);
 
         $user = Auth::user();
 
-        // Les administrateurs peuvent voir toutes les cartes
         if ($user->role === 'admin') {
             $cards = Card::with('media')
                 ->where('deleted', false)
                 ->get();
         } else {
-            // Les utilisateurs normaux ne voient que leurs propres cartes
             $cards = Card::with('media')
                 ->where('user_id', Auth::id())
                 ->where('deleted', false)
@@ -42,9 +34,6 @@ class CardController extends Controller
         return view('cards.index', compact('cards'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $categories = Category::all();
@@ -53,12 +42,8 @@ class CardController extends Controller
         return view('cards.create', compact('categories', 'cardSizes'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        // Vérifie si l'utilisateur est autorisé à créer des cartes
         $this->authorize('create', Card::class);
 
         $validated = $request->validate([
@@ -67,66 +52,55 @@ class CardController extends Controller
             'category_id' => 'required|exists:categories,id',
             'card_size_id' => 'required|exists:card_sizes,id',
             'image' => 'nullable|file|mimes:jpg,jpeg,png,gif,webp|max:10240',
-            'video' => 'nullable|file|mimes:mp4,mov,avi,webm|max:102400',
-            'music' => 'nullable|file|mimes:mp3,wav,ogg|max:20480',
+            'video' => 'nullable|file|mimes:mp4,mov,avi,webm,mkv,flv,m4v,3gp|max:102400',
+            'music' => 'nullable|file|mimes:mp3,wav,ogg,m4a,aac,flac|max:20480',
         ]);
 
-        $card = new Card();
-        $card->title = $validated['title'];
-        $card->description = $validated['description'];
-        $card->category_id = $validated['category_id'];
+        $hasImage = $request->hasFile('image');
+        $hasVideo = $request->hasFile('video');
+        $hasMusic = $request->hasFile('music');
 
-        // Vérifie si l'utilisateur est autorisé à changer la taille des cartes
-        if (Gate::allows('change-card-size')) {
-            $card->card_size_id = $validated['card_size_id'];
-        } else {
-            // Sinon, utilise la taille petite par défaut
-            $smallSize = CardSize::where('name', 'Petit')->first();
-            $card->card_size_id = $smallSize ? $smallSize->id : $validated['card_size_id'];
+        if ($hasVideo && ($hasImage || $hasMusic)) {
+            return back()->withInput()->withErrors(['media' => 'La vidéo doit être seule.']);
         }
 
-        $card->user_id = Auth::id();
-        $card->creation_date = now();
-        $card->deleted = false;
-        $card->save();
+        $card = Card::create([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'category_id' => $validated['category_id'],
+            'card_size_id' => Gate::allows('change-card-size')
+                ? $validated['card_size_id']
+                : CardSize::where('name', 'Petit')->first()->getKey(),
+            'user_id' => Auth::id(),
+            'creation_date' => now(),
+            'deleted' => false,
+        ]);
 
-        // Gérer les médias avec Spatie
-        if ($request->hasFile('image')) {
-            $card->addMediaFromRequest('image')
-                ->toMediaCollection('images');
+        if ($hasImage) {
+            $card->addMediaFromRequest('image')->toMediaCollection('images');
         }
 
-        if ($request->hasFile('video')) {
-            $card->addMediaFromRequest('video')
-                ->toMediaCollection('videos');
+        if ($hasVideo) {
+            $card->addMediaFromRequest('video')->toMediaCollection('videos');
         }
 
-        if ($request->hasFile('music')) {
-            $card->addMediaFromRequest('music')
-                ->toMediaCollection('music');
+        if ($hasMusic) {
+            $card->addMediaFromRequest('music')->toMediaCollection('music');
         }
 
-        return redirect()->route('cards.show', $card)
-            ->with('success', 'Carte créée avec succès!');
+        return redirect()->route('cards.show', $card)->with('success', 'Carte créée avec succès !');
     }
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show(Card $card)
     {
-        // Vérifie si l'utilisateur est autorisé à voir la carte
-        $this->authorize('view', $card);
+        // $this->authorize('view', $card);
 
         return view('cards.show', compact('card'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Card $card)
     {
-        // Vérifie si l'utilisateur est autorisé à éditer la carte
         $this->authorize('update', $card);
 
         $categories = Category::all();
@@ -135,12 +109,8 @@ class CardController extends Controller
         return view('cards.edit', compact('card', 'categories', 'cardSizes'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Card $card)
     {
-        // Vérifie si l'utilisateur est autorisé à mettre à jour la carte
         $this->authorize('update', $card);
 
         $validated = $request->validate([
@@ -149,53 +119,71 @@ class CardController extends Controller
             'category_id' => 'required|exists:categories,id',
             'card_size_id' => 'required|exists:card_sizes,id',
             'image' => 'nullable|file|mimes:jpg,jpeg,png,gif,webp|max:10240',
-            'video' => 'nullable|file|mimes:mp4,mov,avi,webm|max:102400',
-            'music' => 'nullable|file|mimes:mp3,wav,ogg|max:20480',
+            'video' => 'nullable|file|mimes:mp4,mov,avi,webm,mkv,flv,m4v,3gp|max:102400',
+            'music' => 'nullable|file|mimes:mp3,wav,ogg,m4a,aac,flac|max:20480',
+            'remove_image' => 'nullable|boolean',
+            'remove_video' => 'nullable|boolean',
+            'remove_music' => 'nullable|boolean',
         ]);
 
-        $card->title = $validated['title'];
-        $card->description = $validated['description'];
-        $card->category_id = $validated['category_id'];
+        $hasImage = $request->hasFile('image');
+        $hasVideo = $request->hasFile('video');
+        $hasMusic = $request->hasFile('music');
 
-        // Vérifie si l'utilisateur est autorisé à changer la taille des cartes
-        if (Gate::allows('change-card-size')) {
-            $card->card_size_id = $validated['card_size_id'];
+        $removeImage = $request->boolean('remove_image');
+        $removeVideo = $request->boolean('remove_video');
+        $removeMusic = $request->boolean('remove_music');
+
+        if ($hasVideo && ($hasImage || $hasMusic)) {
+            return back()->withInput()->withErrors(['media' => 'La vidéo doit être seule.']);
         }
 
-        $card->save();
+        $card->update([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'category_id' => $validated['category_id'],
+            'card_size_id' => Gate::allows('change-card-size')
+                ? $validated['card_size_id']
+                : $card->card_size_id,
+        ]);
 
-        // Gérer les médias avec Spatie
-        if ($request->hasFile('image')) {
+        if ($removeImage) {
             $card->clearMediaCollection('images');
-            $card->addMediaFromRequest('image')
-                ->toMediaCollection('images');
         }
 
-        if ($request->hasFile('video')) {
+        if ($removeVideo) {
             $card->clearMediaCollection('videos');
-            $card->addMediaFromRequest('video')
-                ->toMediaCollection('videos');
         }
 
-        if ($request->hasFile('music')) {
+        if ($removeMusic) {
             $card->clearMediaCollection('music');
-            $card->addMediaFromRequest('music')
-                ->toMediaCollection('music');
         }
 
-        return redirect()->route('cards.show', $card)
-            ->with('success', 'Carte mise à jour avec succès!');
+        if ($hasVideo) {
+            $card->clearMediaCollection('images');
+            $card->clearMediaCollection('music');
+            $card->clearMediaCollection('videos');
+            $card->addMediaFromRequest('video')->toMediaCollection('videos');
+        } else {
+            if ($hasImage) {
+                $card->clearMediaCollection('images');
+                $card->addMediaFromRequest('image')->toMediaCollection('images');
+            }
+
+            if ($hasMusic) {
+                $card->clearMediaCollection('music');
+                $card->addMediaFromRequest('music')->toMediaCollection('music');
+            }
+        }
+
+        return redirect()->route('cards.show', $card)->with('success', 'Carte mise à jour avec succès !');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+
     public function destroy(Card $card)
     {
-        // Vérifie si l'utilisateur est autorisé à supprimer la carte
         $this->authorize('delete', $card);
 
-        // Suppression logique (soft delete)
         $card->deleted = true;
         $card->save();
 

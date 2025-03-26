@@ -53,20 +53,64 @@
                                         </div>
                                     @endif
 
-                                    {{-- Affichage de l'image principale s'il y en a une --}}
-                                    @if ($card->hasMedia('images'))
-                                        <div class="mb-4 overflow-hidden rounded-md" style="height: 200px;">
-                                            <img src="{{ $card->getFirstMediaUrl('images') }}" alt="{{ $card->title }}"
-                                                class="w-full h-full object-cover" />
-                                        </div>
-                                    @endif
+                                    <div class="mb-4 overflow-hidden rounded-md" style="height: 200px;">
+                                        @if ($card->hasMedia('images'))
+                                            <img src="{{ $card->getFirstMediaUrl('images', 'grid') }}"
+                                                alt="{{ $card->title }}" class="w-full h-full object-cover" />
+                                        @elseif ($card->hasMedia('videos'))
+                                            <div
+                                                class="relative w-full h-full bg-black flex items-center justify-center">
+                                                @if ($card->getFirstMedia('videos')->hasGeneratedConversion('thumb'))
+                                                    <img src="{{ $card->getFirstMedia('videos')->getUrl('thumb') }}"
+                                                        alt="Aperçu vidéo"
+                                                        class="max-w-full max-h-full object-contain" />
+                                                @else
+                                                    <div
+                                                        class="bg-gray-200 w-full h-full flex items-center justify-center">
+                                                        <span class="text-gray-500">Aperçu en cours de génération</span>
+                                                    </div>
+                                                @endif
+                                                <div class="absolute inset-0 flex items-center justify-center">
+                                                    <div
+                                                        class="w-16 h-16 bg-white bg-opacity-75 rounded-full flex items-center justify-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                            class="h-8 w-8 text-indigo-600" fill="none"
+                                                            viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @elseif ($card->hasMedia('music'))
+                                            <div class="w-full h-full bg-gray-100 flex items-center justify-center">
+                                                <div class="text-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                        class="h-16 w-16 text-indigo-400 mx-auto mb-2" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                                                    </svg>
+                                                    <span
+                                                        class="text-sm text-gray-700">{{ $card->getFirstMedia('music')->file_name }}</span>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div class="w-full h-full bg-gray-100 flex items-center justify-center">
+                                                <span class="text-gray-500">Aucun média</span>
+                                            </div>
+                                        @endif
+                                    </div>
 
-                                    {{-- Affichage du début de la description --}}
                                     <p class="text-gray-600 mb-4 line-clamp-2">
                                         {{ Str::limit($card->description, 150) }}
                                     </p>
 
-                                    {{-- Icônes pour les différents types de média --}}
                                     <div class="flex space-x-2 mb-4">
                                         @if ($card->hasMedia('images'))
                                             <span class="inline-flex items-center text-sm text-gray-600">

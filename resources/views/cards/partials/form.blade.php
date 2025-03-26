@@ -6,6 +6,13 @@
         @method('PUT')
     @endif
 
+    {{-- Message d'erreur pour les médias --}}
+    @error('media')
+        <div class="mb-4 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">
+            <strong>Erreur :</strong> {{ $message }}
+        </div>
+    @enderror
+
     <div class="grid grid-cols-1 gap-6">
         {{-- Titre --}}
         <div>
@@ -84,6 +91,13 @@
                     <p class="text-sm text-gray-600">Image actuelle:</p>
                     <img src="{{ $card->getFirstMediaUrl('images') }}" alt="Image actuelle"
                         class="h-32 w-auto mt-1 rounded-md">
+                    <div class="mt-2">
+                        <label class="inline-flex items-center text-sm text-red-600">
+                            <input type="checkbox" name="remove_image" value="1" class="media-removal-checkbox"
+                                data-media-type="image">
+                            <span class="ml-2">Supprimer cette image</span>
+                        </label>
+                    </div>
                 </div>
             @endif
         </div>
@@ -103,6 +117,13 @@
                             type="{{ $card->getFirstMedia('videos')->mime_type }}">
                         Votre navigateur ne supporte pas la lecture de vidéos.
                     </video>
+                    <div class="mt-2">
+                        <label class="inline-flex items-center text-sm text-red-600">
+                            <input type="checkbox" name="remove_video" value="1" class="media-removal-checkbox"
+                                data-media-type="video">
+                            <span class="ml-2">Supprimer cette vidéo</span>
+                        </label>
+                    </div>
                 </div>
             @endif
         </div>
@@ -122,6 +143,13 @@
                             type="{{ $card->getFirstMedia('music')->mime_type }}">
                         Votre navigateur ne supporte pas la lecture audio.
                     </audio>
+                    <div class="mt-2">
+                        <label class="inline-flex items-center text-sm text-red-600">
+                            <input type="checkbox" name="remove_music" value="1" class="media-removal-checkbox"
+                                data-media-type="music">
+                            <span class="ml-2">Supprimer cette musique</span>
+                        </label>
+                    </div>
                 </div>
             @endif
         </div>
@@ -139,3 +167,79 @@
         </div>
     </div>
 </form>
+
+<script>
+    // Fonction pour gérer les combinaisons de médias autorisées
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageInput = document.getElementById('image');
+        const videoInput = document.getElementById('video');
+        const musicInput = document.getElementById('music');
+
+        // Récupérer les cases à cocher de suppression de média
+        const removalCheckboxes = document.querySelectorAll('.media-removal-checkbox');
+
+        // Fonction pour mettre à jour l'état des inputs selon les règles
+        // Règles autorisées : Image seule, Son seul, Vidéo seule, ou Image + Son
+        function updateInputStates() {
+            // Vérifier si une vidéo est sélectionnée
+            const hasVideo = videoInput.files.length > 0;
+            // Vérifier si une vidéo est déjà présente (et non marquée pour suppression)
+            const hasExistingVideo = document.querySelector(
+                '.media-removal-checkbox[data-media-type="video"]') &&
+                !document.querySelector('.media-removal-checkbox[data-media-type="video"]').checked;
+
+            // Si une vidéo est sélectionnée ou présente, désactiver les autres inputs
+            if (hasVideo || hasExistingVideo) {
+                // Désactiver les inputs image et musique
+                imageInput.disabled = true;
+                musicInput.disabled = true;
+
+                // Ajouter des messages explicatifs
+                addDisabledMessage(imageInput, 'La vidéo ne peut pas être combinée avec une image');
+                addDisabledMessage(musicInput, 'La vidéo ne peut pas être combinée avec du son');
+            } else {
+                // Si pas de vidéo, tout est autorisé
+                imageInput.disabled = false;
+                musicInput.disabled = false;
+
+                // Supprimer les messages d'erreur
+                removeDisabledMessage(imageInput);
+                removeDisabledMessage(musicInput);
+            }
+        }
+
+        // Fonction pour ajouter un message d'avertissement
+        function addDisabledMessage(input, message) {
+            const parentDiv = input.closest('div');
+            if (!parentDiv.querySelector('.media-disabled-message')) {
+                const messageEl = document.createElement('p');
+                messageEl.className = 'text-sm text-amber-600 mt-1 media-disabled-message';
+                messageEl.textContent = message;
+                parentDiv.appendChild(messageEl);
+            }
+        }
+
+        // Fonction pour supprimer un message d'avertissement
+        function removeDisabledMessage(input) {
+            const message = input.closest('div').querySelector('.media-disabled-message');
+            if (message) {
+                message.remove();
+            }
+        }
+
+        // Appliquer la logique quand un fichier est sélectionné
+        imageInput.addEventListener('change', updateInputStates);
+        videoInput.addEventListener('change', updateInputStates);
+        musicInput.addEventListener('change', updateInputStates);
+
+        // Initialiser l'état des inputs au chargement de la page
+        updateInputStates();
+
+        // Ajouter des gestionnaires pour les cases à cocher de suppression
+        removalCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                updateInputStates();
+            });
+        });
+    });
+</script>

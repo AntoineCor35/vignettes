@@ -11,13 +11,13 @@
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+-   [Simple, fast routing engine](https://laravel.com/docs/routing).
+-   [Powerful dependency injection container](https://laravel.com/docs/container).
+-   Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
+-   Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
+-   Database agnostic [schema migrations](https://laravel.com/docs/migrations).
+-   [Robust background job processing](https://laravel.com/docs/queues).
+-   [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
@@ -35,19 +35,19 @@ We would like to extend our thanks to the following sponsors for funding Laravel
 
 ### Premium Partners
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+-   **[Vehikl](https://vehikl.com/)**
+-   **[Tighten Co.](https://tighten.co)**
+-   **[WebReinvent](https://webreinvent.com/)**
+-   **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
+-   **[64 Robots](https://64robots.com)**
+-   **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
+-   **[Cyber-Duck](https://cyber-duck.co.uk)**
+-   **[DevSquad](https://devsquad.com/hire-laravel-developers)**
+-   **[Jump24](https://jump24.co.uk)**
+-   **[Redberry](https://redberry.international/laravel/)**
+-   **[Active Logic](https://activelogic.com)**
+-   **[byte5](https://byte5.de)**
+-   **[OP.GG](https://op.gg)**
 
 ## Contributing
 
@@ -64,3 +64,68 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+# Pinterest Clone
+
+Cette application est un clone de Pinterest, permettant aux utilisateurs de créer et partager des cartes multimédias.
+
+## Configuration des miniatures (thumbnails)
+
+L'application peut maintenant générer des miniatures optimisées pour différents types de médias (images, vidéos, audio).
+
+### Prérequis
+
+-   **FFmpeg** : Nécessaire pour la génération de miniatures de vidéos. Sans FFmpeg, les conversions de vidéos ne fonctionneront pas.
+    -   Sur macOS : `brew install ffmpeg`
+    -   Sur Ubuntu : `sudo apt install ffmpeg`
+    -   Sur Windows : Téléchargez depuis [ffmpeg.org](https://ffmpeg.org/download.html)
+
+### Images par défaut
+
+Pour que le système d'affichage des miniatures fonctionne correctement, ajoutez les fichiers suivants :
+
+1. Créez un dossier `public/images` s'il n'existe pas déjà
+2. Ajoutez les images par défaut suivantes :
+    - `public/images/audio-thumbnail.png` - Miniature par défaut pour les fichiers audio
+    - `public/images/default-thumbnail.png` - Miniature par défaut générique
+
+### Régénération des miniatures
+
+Les miniatures sont générées automatiquement lors de l'ajout ou de la modification de médias. Si vous avez des médias existants et que vous souhaitez générer leurs miniatures, utilisez la commande Artisan suivante :
+
+```bash
+php artisan media:regenerate
+```
+
+Options disponibles :
+
+-   `--model=Card` : Spécifier le type de modèle (par défaut : Card)
+-   `--id=123` : Régénérer seulement pour un ID spécifique
+-   `--collection=images` : Régénérer seulement pour une collection spécifique (images, videos, music)
+
+Exemple :
+
+```bash
+# Régénérer toutes les miniatures de vidéos
+php artisan media:regenerate --collection=videos
+
+# Régénérer les miniatures pour une carte spécifique
+php artisan media:regenerate --id=123
+```
+
+## Modifications apportées
+
+Ces nouvelles fonctionnalités ont été ajoutées à plusieurs parties de l'application :
+
+1. **Modèle Card** - Génère automatiquement différentes tailles de miniatures
+2. **Vue dashboard** - Affiche désormais les miniatures optimisées
+3. **Vue d'accueil** - Utilise les miniatures adaptées à la grille
+4. **Vue détaillée** - Affiche les médias avec leurs miniatures correspondantes
+
+## Résolution des problèmes
+
+Si les miniatures ne s'affichent pas correctement :
+
+1. Vérifiez que FFmpeg est installé et accessible dans le PATH
+2. Assurez-vous que les images par défaut sont présentes dans le dossier `public/images`
+3. Exécutez la commande de régénération des miniatures

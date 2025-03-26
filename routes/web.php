@@ -24,8 +24,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Routes pour les cartes
-    Route::resource('cards', CardController::class);
+    Route::resource('cards', CardController::class)->except(['show']);
 });
+
+Route::get('/cards/{card}', [CardController::class, 'show'])->name('cards.show');
 
 // Routes administrateur
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {

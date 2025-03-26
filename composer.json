@@ -15,6 +15,7 @@
         "spatie/laravel-medialibrary": "^11.12"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.15",
         "fakerphp/faker": "^1.23",
         "laravel-shift/blueprint": "^2.11",
         "laravel/breeze": "^2.3",

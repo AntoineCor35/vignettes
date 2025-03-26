@@ -18,21 +18,23 @@
 
                     <div class="flex justify-between mb-6">
                         <h3 class="text-2xl font-bold">{{ $card->title }}</h3>
-                        <div class="space-x-2">
-                            <a href="{{ route('cards.edit', $card) }}"
-                                class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                Modifier
-                            </a>
-                            <form method="POST" action="{{ route('cards.destroy', $card) }}" class="inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit"
-                                    class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150"
-                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette carte?')">
-                                    Supprimer
-                                </button>
-                            </form>
-                        </div>
+                        @auth
+                            <div class="space-x-2">
+                                <a href="{{ route('cards.edit', $card) }}"
+                                    class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                    Modifier
+                                </a>
+                                <form method="POST" action="{{ route('cards.destroy', $card) }}" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                        class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-500 active:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette carte?')">
+                                        Supprimer
+                                    </button>
+                                </form>
+                            </div>
+                        @endauth
                     </div>
 
                     {{-- Inclure les médias --}}
@@ -66,9 +68,15 @@
                     </div>
 
                     <div class="mt-6">
-                        <a href="{{ route('cards.index') }}" class="text-indigo-600 hover:text-indigo-900">
-                            Retour à la liste
-                        </a>
+                        @auth
+                            <a href="{{ route('cards.index') }}" class="text-indigo-600 hover:text-indigo-900">
+                                Retour à la liste
+                            </a>
+                        @else
+                            <a href="{{ url('/') }}" class="text-indigo-600 hover:text-indigo-900">
+                                Retour à l'accueil
+                            </a>
+                        @endauth
                     </div>
                 </div>
             </div>

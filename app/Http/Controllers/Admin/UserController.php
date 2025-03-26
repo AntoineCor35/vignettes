@@ -11,13 +11,9 @@ use Illuminate\View\View;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the users.
-     */
     public function index(): View
     {
-        // Vérifier que l'utilisateur connecté est un administrateur
-        if (!Auth::user()->isAdmin()) {
+        if (Auth::user()->role !== 'admin') {
             abort(403, 'Accès non autorisé.');
         }
 
@@ -26,26 +22,18 @@ class UserController extends Controller
         return view('admin.users.index', compact('users'));
     }
 
-    /**
-     * Show the form for editing the specified user.
-     */
     public function edit(User $user): View
     {
-        // Vérifier que l'utilisateur connecté est un administrateur
-        if (!Auth::user()->isAdmin()) {
+        if (Auth::user()->role !== 'admin') {
             abort(403, 'Accès non autorisé.');
         }
 
         return view('admin.users.edit', compact('user'));
     }
 
-    /**
-     * Update the specified user's role.
-     */
     public function updateRole(Request $request, User $user): RedirectResponse
     {
-        // Vérifier que l'utilisateur connecté est un administrateur
-        if (!Auth::user()->isAdmin()) {
+        if (Auth::user()->role !== 'admin') {
             abort(403, 'Accès non autorisé.');
         }
 
