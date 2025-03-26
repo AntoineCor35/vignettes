@@ -6,10 +6,62 @@
     </x-slot>
 
     <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div x-data="bentoGrid()" class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+        <div class="max-w-[95%] mx-auto px-4">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <div class="flex justify-end mb-4">
+                    @if (isset($activeCategory) || isset($activeAuthor))
+                        <div class="mb-6 bg-indigo-50 p-4 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-lg font-medium text-indigo-800 mb-1">Filtres actifs</h3>
+                                    <div class="text-sm text-indigo-600">
+                                        @if (isset($activeCategory))
+                                            Catégorie : <span class="font-medium">{{ $activeCategory->name }}</span>
+                                        @endif
+
+                                        @if (isset($activeAuthor))
+                                            @if (isset($activeCategory))
+                                                |
+                                            @endif
+                                            Auteur : <span class="font-medium">{{ $activeAuthor->name }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                <a href="{{ route('home') }}"
+                                    class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                                    Effacer les filtres
+                                </a>
+                            </div>
+                        </div>
+                    @endif
+
+                    <div class="flex flex-wrap justify-between items-center mb-6">
+                        <div class="flex flex-wrap gap-2 mb-4 md:mb-0">
+                            <div class="relative" x-data="{ open: false }">
+                                <button @click="open = !open"
+                                    class="flex items-center gap-1 px-3 py-2 text-sm border rounded-md bg-white hover:bg-gray-50">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                    </svg>
+                                    Catégories
+                                </button>
+                                <div x-show="open" @click.away="open = false"
+                                    class="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-10"
+                                    style="display: none;">
+                                    <div class="py-1">
+                                        @foreach ($categories as $category)
+                                            <a href="{{ route('home', ['category' => $category->id]) }}"
+                                                class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                                {{ $category->name }}
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <button id="shuffle-btn"
                             class="flex items-center gap-2 rounded-md border border-gray-300 px-3 py-1.5 text-sm bg-white hover:bg-gray-50">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none"
@@ -24,13 +76,49 @@
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        @forelse ($cards as $card)
-                            <x-card :card="$card" />
-                        @empty
-                            <div class="col-span-full py-12 text-center">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="grid gap-6">
+                            @foreach ($cards->filter(function ($card, $index) {
+        return $index % 3 == 0;
+    }) as $card)
+                                <div class="card-wrapper">
+                                    <x-card :card="$card" />
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="grid gap-6">
+                            @foreach ($cards->filter(function ($card, $index) {
+        return $index % 3 == 1;
+    }) as $card)
+                                <div class="card-wrapper">
+                                    <x-card :card="$card" />
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <div class="grid gap-6 sm:hidden lg:grid">
+                            @foreach ($cards->filter(function ($card, $index) {
+        return $index % 3 == 2;
+    }) as $card)
+                                <div class="card-wrapper">
+                                    <x-card :card="$card" />
+                                </div>
+                            @endforeach
+                        </div>
+
+                        @if ($cards->isEmpty())
+                            <div class="col-span-1 sm:col-span-2 lg:col-span-3 py-12 text-center empty-message">
                                 <h3 class="text-lg font-medium text-gray-900">Aucune carte trouvée</h3>
-                                <p class="mt-1 text-sm text-gray-500">Commencez par créer une nouvelle carte.</p>
+                                <p class="mt-1 text-sm text-gray-500">
+                                    @if (isset($activeCategory) || isset($activeAuthor))
+                                        Aucune carte ne correspond aux filtres sélectionnés.
+                                        <a href="{{ route('home') }}" class="text-indigo-600 hover:underline">Effacer
+                                            les filtres</a>
+                                    @else
+                                        Commencez par créer une nouvelle carte.
+                                    @endif
+                                </p>
                                 @auth
                                     <div class="mt-6">
                                         <a href="{{ route('cards.create') }}"
@@ -47,84 +135,39 @@
                                     </div>
                                 @endauth
                             </div>
-                        @endforelse
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Scripts pour le bento grid et le shuffle -->
     <script>
-        function bentoGrid() {
-            return {
-                itemSizes: {},
-                originalSizes: {},
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('shuffle-btn')?.addEventListener('click', shuffleCards);
 
-                init() {
-                    // Initialiser les tailles par défaut et conserver les tailles originales
-                    @foreach ($cards as $card)
-                        // Convertir cardSize.name en taille correspondante pour itemSizes
-                        @if ($card->cardSize->name === 'small')
-                            this.itemSizes[{{ $card->id }}] = 'small';
-                            this.originalSizes[{{ $card->id }}] = 'small';
-                        @elseif ($card->cardSize->name === 'medium')
-                            this.itemSizes[{{ $card->id }}] = 'medium';
-                            this.originalSizes[{{ $card->id }}] = 'medium';
-                        @else
-                            this.itemSizes[{{ $card->id }}] = 'large';
-                            this.originalSizes[{{ $card->id }}] = 'large';
-                        @endif
-                    @endforeach
+            function shuffleCards() {
+                const cards = Array.from(document.querySelectorAll('.card-wrapper'));
 
-                    // Attacher l'événement shuffle au bouton
-                    document.getElementById('shuffle-btn').addEventListener('click', this.shuffleCards.bind(this));
-                },
+                if (cards.length <= 1) return;
 
-                setAllToSize(size) {
-                    @foreach ($cards as $card)
-                        this.itemSizes[{{ $card->id }}] = size;
-                    @endforeach
-                },
+                const shuffled = cards
+                    .map(value => ({
+                        value,
+                        sort: Math.random()
+                    }))
+                    .sort((a, b) => a.sort - b.sort)
+                    .map(({
+                        value
+                    }) => value);
 
-                resetToDefaults() {
-                    // Restaurer toutes les cartes à leur taille d'origine du modèle
-                    @foreach ($cards as $card)
-                        this.itemSizes[{{ $card->id }}] = this.originalSizes[{{ $card->id }}];
-                    @endforeach
-                },
+                const columns = document.querySelectorAll('.grid.gap-6');
 
-                shuffleCards() {
-                    const grid = document.querySelector('.grid');
-                    const cards = Array.from(grid.children);
-
-                    // Exclure la div affichée quand il n'y a pas de cartes
-                    const cardsToShuffle = cards.filter(card => !card.classList.contains('col-span-full'));
-
-                    if (cardsToShuffle.length <= 1) return;
-
-                    // Shuffle array
-                    let shuffled = cardsToShuffle.map(value => ({
-                            value,
-                            sort: Math.random()
-                        }))
-                        .sort((a, b) => a.sort - b.sort)
-                        .map(({
-                            value
-                        }) => value);
-
-                    // Clear the grid and append shuffled cards
-                    shuffled.forEach(card => {
-                        grid.appendChild(card);
-                    });
-
-                    // Si la div "aucune carte" existe, assurez-vous qu'elle reste à la fin
-                    const emptyMessage = cards.find(card => card.classList.contains('col-span-full'));
-                    if (emptyMessage) {
-                        grid.appendChild(emptyMessage);
-                    }
-                }
+                shuffled.forEach((card, index) => {
+                    const columnIndex = index % columns.length;
+                    columns[columnIndex].appendChild(card);
+                });
             }
-        }
+        });
     </script>
 </x-app-layout>

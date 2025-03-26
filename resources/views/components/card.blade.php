@@ -241,7 +241,21 @@
                     <dl class="grid grid-cols-2 gap-x-4 gap-y-2">
                         <dt class="text-sm font-medium text-gray-500">Catégorie</dt>
                         <dd class="text-sm text-gray-900">
-                            {{ $card->category ? $card->category->name : 'Non catégorisé' }}</dd>
+                            <a href="{{ route('home', ['category' => $card->category_id]) }}"
+                                class="text-indigo-600 hover:text-indigo-800 hover:underline"
+                                @click="$dispatch('close-modal', '{{ $modalId }}')">
+                                {{ $card->category ? $card->category->name : 'Non catégorisé' }}
+                            </a>
+                        </dd>
+
+                        <dt class="text-sm font-medium text-gray-500">Auteur</dt>
+                        <dd class="text-sm text-gray-900">
+                            <a href="{{ route('home', ['author' => $card->user_id]) }}"
+                                class="text-indigo-600 hover:text-indigo-800 hover:underline"
+                                @click="$dispatch('close-modal', '{{ $modalId }}')">
+                                {{ $card->user->name }}
+                            </a>
+                        </dd>
 
                         <dt class="text-sm font-medium text-gray-500">Taille</dt>
                         <dd class="text-sm text-gray-900">{{ $card->cardSize ? $card->cardSize->name : 'Standard' }}

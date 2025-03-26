@@ -1,28 +1,35 @@
-@props(['id', 'maxWidth'])
+@props(['id' => null, 'maxWidth' => null, 'name' => null, 'show' => false, 'focusable' => false])
 
 @php
-    $id = $id ?? md5($attributes->wire('model'));
-    $maxWidth = [
-        'sm' => 'sm:max-w-sm',
-        'md' => 'sm:max-w-md',
-        'lg' => 'sm:max-w-lg',
-        'xl' => 'sm:max-w-xl',
-        '2xl' => 'sm:max-w-2xl',
-        '3xl' => 'sm:max-w-3xl',
-        '4xl' => 'sm:max-w-4xl',
-        '5xl' => 'sm:max-w-5xl',
-        '6xl' => 'sm:max-w-6xl',
-        '7xl' => 'sm:max-w-7xl',
-        'full' => 'sm:max-w-full',
-    ][$maxWidth ?? '2xl'];
+    // Use name as id if provided
+    $id = $id ?? ($name ?? md5(time()));
+
+    // Convert show to boolean if it's a string
+$show = filter_var($show, FILTER_VALIDATE_BOOLEAN);
+
+$maxWidth = [
+    'sm' => 'sm:max-w-sm',
+    'md' => 'sm:max-w-md',
+    'lg' => 'sm:max-w-lg',
+    'xl' => 'sm:max-w-xl',
+    '2xl' => 'sm:max-w-2xl',
+    '3xl' => 'sm:max-w-3xl',
+    '4xl' => 'sm:max-w-4xl',
+    '5xl' => 'sm:max-w-5xl',
+    '6xl' => 'sm:max-w-6xl',
+    '7xl' => 'sm:max-w-7xl',
+    'full' => 'sm:max-w-full',
+][$maxWidth ?? '2xl'];
+
+$focusableAttr = $focusable ? 'tabindex="0"' : '';
 @endphp
 
-<div x-data="{ show: false }"
+<div x-data="{ show: {{ $show ? 'true' : 'false' }} }"
     x-on:open-modal.window="if($event.detail == '{{ $id }}') { show = true; $dispatch('open-modal', '{{ $id }}'); }"
     x-on:close-modal.window="if($event.detail == '{{ $id }}') { show = false; $dispatch('close-modal', '{{ $id }}'); }"
     x-on:keydown.escape.window="show = false; $dispatch('close-modal', '{{ $id }}');" x-show="show"
     id="{{ $id }}" class="fixed inset-0 z-50 px-4 py-6 overflow-y-auto flex items-center justify-center"
-    style="display: none;">
+    style="display: none;" {{ $focusableAttr }}>
     <div x-show="show" class="fixed inset-0 transform transition-all"
         x-on:click="show = false; $dispatch('close-modal', '{{ $id }}');">
         <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
