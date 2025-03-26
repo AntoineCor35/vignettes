@@ -12,6 +12,7 @@
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    @auth
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
@@ -33,10 +34,19 @@
                             {{ __('Gestion des catégories') }}
                         </x-nav-link>
                     @endif
+                    @else
+                    <x-nav-link :href="route('login')" :active="request()->routeIs('login')">
+                        {{ __('Se connecter') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('register')" :active="request()->routeIs('register')">
+                        {{ __('S\'inscrire') }}
+                    </x-nav-link>
+                    @endauth
                 </div>
             </div>
 
             <!-- Settings Dropdown -->
+            @auth
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
@@ -73,6 +83,7 @@
                     </x-slot>
                 </x-dropdown>
             </div>
+            @endauth
 
             <!-- Hamburger -->
             <div class="-me-2 flex items-center sm:hidden">
@@ -93,6 +104,7 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{ 'block': open, 'hidden': !open }" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
+            @auth
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
@@ -114,9 +126,18 @@
                     {{ __('Gestion des catégories') }}
                 </x-responsive-nav-link>
             @endif
+            @else
+            <x-responsive-nav-link :href="route('login')" :active="request()->routeIs('login')">
+                {{ __('Se connecter') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('register')" :active="request()->routeIs('register')">
+                {{ __('S\'inscrire') }}
+            </x-responsive-nav-link>
+            @endauth
         </div>
 
         <!-- Responsive Settings Options -->
+        @auth
         <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="px-4">
                 <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
@@ -140,5 +161,6 @@
                 </form>
             </div>
         </div>
+        @endauth
     </div>
 </nav>

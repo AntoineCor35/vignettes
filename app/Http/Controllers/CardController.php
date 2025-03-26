@@ -94,7 +94,7 @@ class CardController extends Controller
 
     public function show(Card $card)
     {
-        $this->authorize('view', $card);
+        // $this->authorize('view', $card);
 
         return view('cards.show', compact('card'));
     }

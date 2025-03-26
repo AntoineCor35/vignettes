@@ -53,7 +53,6 @@
                                         </div>
                                     @endif
 
-                                    {{-- Affichage du thumbnail approprié selon le type de média --}}
                                     <div class="mb-4 overflow-hidden rounded-md" style="height: 200px;">
                                         @if ($card->hasMedia('images'))
                                             <img src="{{ $card->getFirstMediaUrl('images', 'grid') }}"
@@ -108,12 +107,10 @@
                                         @endif
                                     </div>
 
-                                    {{-- Affichage du début de la description --}}
                                     <p class="text-gray-600 mb-4 line-clamp-2">
                                         {{ Str::limit($card->description, 150) }}
                                     </p>
 
-                                    {{-- Icônes pour les différents types de média --}}
                                     <div class="flex space-x-2 mb-4">
                                         @if ($card->hasMedia('images'))
                                             <span class="inline-flex items-center text-sm text-gray-600">
