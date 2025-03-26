@@ -70,8 +70,8 @@ class CardController extends Controller
             'category_id' => $validated['category_id'],
             'card_size_id' => Gate::allows('change-card-size')
                 ? $validated['card_size_id']
-                : CardSize::where('name', 'Petit')->first()->id,
-            'user_id' => auth()->id(),
+                : CardSize::where('name', 'Petit')->first()->getKey(),
+            'user_id' => Auth::id(),
             'creation_date' => now(),
             'deleted' => false,
         ]);
@@ -134,7 +134,6 @@ class CardController extends Controller
         $removeVideo = $request->boolean('remove_video');
         $removeMusic = $request->boolean('remove_music');
 
-        // Règles de combinaison média
         if ($hasVideo && ($hasImage || $hasMusic)) {
             return back()->withInput()->withErrors(['media' => 'La vidéo doit être seule.']);
         }
