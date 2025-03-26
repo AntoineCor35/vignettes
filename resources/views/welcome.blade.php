@@ -141,8 +141,8 @@
                             }
                         @endphp
 
-                        <div class="w-full grid grid-cols-5 gap-4 min-h-[700px] max-w-full"
-                            style="grid-template-rows: repeat(5, minmax(140px, auto));">
+                        <div class="w-full grid grid-cols-5 gap-4 max-w-full auto-rows-auto"
+                            style="grid-template-rows: repeat(5, minmax(180px, auto)); grid-auto-flow: dense;">
                             {{-- Position 1: 1x2 (large) --}}
                             <div class="row-span-2 h-full">
                                 @if ($largeCard = getCard($largeCards, $largeIndex))

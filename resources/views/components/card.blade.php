@@ -16,6 +16,16 @@
     $bgColor = $categoryColors[$colorIndex];
     $cardId = $card->id;
     $modalId = "card-modal-{$cardId}";
+
+    // Déterminer la taille de la carte
+    $cardSizeName = $card->cardSize->name ?? 'Moyen';
+    $isSmallCard = $cardSizeName === 'Petit';
+    $isMediumCard = $cardSizeName === 'Moyen';
+    $isLargeCard = $cardSizeName === 'Grand';
+
+    // Définir les hauteurs pour que medium et small soient 50% de la hauteur des grandes cartes
+    // Large: 320px, Medium et Small: 160px (50% de large)
+    $mediaHeightClass = $isLargeCard ? 'h-[320px]' : 'h-[160px]';
 @endphp
 
 <div x-data="{ cardId: {{ $cardId }} }"
@@ -24,9 +34,9 @@
         'col-span-1 md:col-span-2 row-span-1': itemSizes[cardId] === 'wide',
         'col-span-1 md:col-span-2 row-span-2': itemSizes[cardId] === 'large'
     }"
-    class="rounded-xl p-3 md:p-4 shadow-sm transition-all duration-200 border {{ $bgColor }} cursor-pointer h-full w-full"
-    @click="$dispatch('open-modal', '{{ $modalId }}')">
-    <div class="h-full flex flex-col">
+    class="rounded-xl p-3 md:p-4 shadow-sm transition-all duration-200 border {{ $bgColor }} cursor-pointer h-full w-full flex flex-col"
+    style="display: flex; flex-direction: column;" @click="$dispatch('open-modal', '{{ $modalId }}')">
+    <div class="flex-1 flex flex-col">
         <div class="flex justify-between items-start mb-2">
             <div class="flex items-center gap-2">
                 <div class="p-1.5 rounded-full bg-white/90 backdrop-blur-sm">
@@ -66,7 +76,7 @@
             </div>
         @endif
 
-        <div class="mb-2 overflow-hidden rounded-md flex-grow" style="height: calc(100% - 100px);">
+        <div class="mb-2 overflow-hidden rounded-md flex-grow {{ $mediaHeightClass }}">
             @if ($card->hasMedia('images'))
                 <img src="{{ $card->getThumbnailUrl() }}" alt="{{ $card->title }}"
                     class="w-full h-full object-cover" />
