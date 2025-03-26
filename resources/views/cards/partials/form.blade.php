@@ -1,3 +1,5 @@
+@props(['card' => null, 'categories' => [], 'cardSizes' => []])
+
 <form method="POST" action="{{ isset($card) ? route('cards.update', $card) : route('cards.store') }}"
     enctype="multipart/form-data">
     @csrf

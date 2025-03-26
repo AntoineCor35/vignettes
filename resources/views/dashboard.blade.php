@@ -97,8 +97,8 @@
                                         {{-- Utiliser les thumbnails optimisés pour les médias --}}
                                         <div class="h-32 w-full mb-2 rounded-md overflow-hidden">
                                             @if ($card->hasMedia('images'))
-                                                <img src="{{ $card->getFirstMediaUrl('images', 'grid') }}"
-                                                    alt="{{ $card->title }}" class="w-full h-full object-cover">
+                                                <img src="{{ $card->getFirstMediaUrl() }}" alt="{{ $card->title }}"
+                                                    class="w-full h-full object-cover">
                                             @elseif ($card->hasMedia('videos'))
                                                 <div
                                                     class="relative w-full h-full bg-black flex items-center justify-center">
