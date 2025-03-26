@@ -17,17 +17,27 @@
 </head>
 
 <body class="font-sans antialiased">
+    <!-- Débogeur temporaire -->
+    @auth
+        <div
+            style="position: fixed; top: 0; right: 0; background: black; color: lime; padding: 5px; z-index: 9999; font-size: 12px;">
+            Utilisateur: {{ Auth::user()->name }} |
+            Rôle: {{ Auth::user()->role }} |
+            Admin: {{ Auth::user()->isAdmin() ? 'Oui' : 'Non' }}
+        </div>
+    @endauth
+
     <div class="min-h-screen bg-gray-100">
         @include('layouts.navigation')
 
         <!-- Page Heading -->
-        @isset($header)
+        @if (isset($header))
             <header class="bg-white shadow">
-                <div class="max-w-[95%] mx-auto py-6 px-4">
+                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                     {{ $header }}
                 </div>
             </header>
-        @endisset
+        @endif
 
         <!-- Page Content -->
         <main>

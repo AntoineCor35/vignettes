@@ -4,11 +4,10 @@
             {{ __('Accueil') }}
         </h2>
     </x-slot>
-
-    <div class="py-8">
-        <div class="max-w-[95%] mx-auto px-4">
+    <div class="py-4">
+        <div class="max-w-[98%] mx-auto px-2">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+                <div class="p-4">
                     @if (isset($activeCategory) || isset($activeAuthor))
                         <div class="mb-6 bg-indigo-50 p-4 rounded-lg">
                             <div class="flex items-center justify-between">
@@ -76,67 +75,231 @@
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div class="grid gap-6">
-                            @foreach ($cards->filter(function ($card, $index) {
-        return $index % 3 == 0;
-    }) as $card)
-                                <div class="card-wrapper">
-                                    <x-card :card="$card" />
-                                </div>
-                            @endforeach
-                        </div>
-
-                        <div class="grid gap-6">
-                            @foreach ($cards->filter(function ($card, $index) {
-        return $index % 3 == 1;
-    }) as $card)
-                                <div class="card-wrapper">
-                                    <x-card :card="$card" />
-                                </div>
-                            @endforeach
-                        </div>
-
-                        <div class="grid gap-6 sm:hidden lg:grid">
-                            @foreach ($cards->filter(function ($card, $index) {
-        return $index % 3 == 2;
-    }) as $card)
-                                <div class="card-wrapper">
-                                    <x-card :card="$card" />
-                                </div>
-                            @endforeach
-                        </div>
-
-                        @if ($cards->isEmpty())
-                            <div class="col-span-1 sm:col-span-2 lg:col-span-3 py-12 text-center empty-message">
-                                <h3 class="text-lg font-medium text-gray-900">Aucune carte trouvée</h3>
-                                <p class="mt-1 text-sm text-gray-500">
-                                    @if (isset($activeCategory) || isset($activeAuthor))
-                                        Aucune carte ne correspond aux filtres sélectionnés.
-                                        <a href="{{ route('home') }}" class="text-indigo-600 hover:underline">Effacer
-                                            les filtres</a>
-                                    @else
-                                        Commencez par créer une nouvelle carte.
-                                    @endif
-                                </p>
-                                @auth
-                                    <div class="mt-6">
-                                        <a href="{{ route('cards.create') }}"
-                                            class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
-                                            Créer ma première carte
-                                        </a>
-                                    </div>
+                    @if ($cards->isEmpty())
+                        <div class="py-12 text-center empty-message">
+                            <h3 class="text-lg font-medium text-gray-900">Aucune carte trouvée</h3>
+                            <p class="mt-1 text-sm text-gray-500">
+                                @if (isset($activeCategory) || isset($activeAuthor))
+                                    Aucune carte ne correspond aux filtres sélectionnés.
+                                    <a href="{{ route('home') }}" class="text-indigo-600 hover:underline">Effacer
+                                        les filtres</a>
                                 @else
-                                    <div class="mt-6">
-                                        <a href="{{ route('login') }}"
-                                            class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
-                                            Se connecter pour créer des cartes
-                                        </a>
+                                    Commencez par créer une nouvelle carte.
+                                @endif
+                            </p>
+                            @auth
+                                <div class="mt-6">
+                                    <a href="{{ route('cards.create') }}"
+                                        class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
+                                        Créer ma première carte
+                                    </a>
+                                </div>
+                            @else
+                                <div class="mt-6">
+                                    <a href="{{ route('login') }}"
+                                        class="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700">
+                                        Se connecter pour créer des cartes
+                                    </a>
+                                </div>
+                            @endauth
+                        </div>
+                    @else
+                        @php
+                            // Grouper les cartes par leur taille
+                            $smallCards = $cards
+                                ->filter(function ($card) {
+                                    return $card->cardSize->name === 'Petit';
+                                })
+                                ->values();
+
+                            $mediumCards = $cards
+                                ->filter(function ($card) {
+                                    return $card->cardSize->name === 'Moyen';
+                                })
+                                ->values();
+
+                            $largeCards = $cards
+                                ->filter(function ($card) {
+                                    return $card->cardSize->name === 'Grand';
+                                })
+                                ->values();
+
+                            // Utiliser des indices pour suivre quelle carte on affiche
+                            $smallIndex = 0;
+                            $mediumIndex = 0;
+                            $largeIndex = 0;
+
+                            // Fonction pour récupérer la carte en fonction de la taille et incrémenter l'index
+                            function getCard($collection, &$index)
+                            {
+                                if ($collection->isEmpty() || !isset($collection[$index])) {
+                                    return null;
+                                }
+                                $card = $collection[$index];
+                                $index = ($index + 1) % $collection->count();
+                                return $card;
+                            }
+                        @endphp
+
+                        <div class="w-full grid grid-cols-5 gap-4 min-h-[700px] max-w-full"
+                            style="grid-template-rows: repeat(5, minmax(140px, auto));">
+                            {{-- Position 1: 1x2 (large) --}}
+                            <div class="row-span-2 h-full">
+                                @if ($largeCard = getCard($largeCards, $largeIndex))
+                                    <x-card :card="$largeCard" />
+                                @else
+                                    <div
+                                        class="bg-gray-100 rounded-lg h-full flex items-center justify-center text-gray-400">
+                                        Pas de carte large disponible
                                     </div>
-                                @endauth
+                                @endif
                             </div>
-                        @endif
-                    </div>
+
+                            {{-- Position 13: 2x1 (medium) --}}
+                            <div class="col-span-2 h-full">
+                                @if ($mediumCard = getCard($mediumCards, $mediumIndex))
+                                    <x-card :card="$mediumCard" />
+                                @else
+                                    <div
+                                        class="bg-gray-100 rounded-lg h-full flex items-center justify-center text-gray-400">
+                                        Pas de carte moyenne disponible
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- Position 4-5: 2x1 (medium) --}}
+                            <div class="col-span-2 col-start-4 row-start-1 h-full">
+                                @if ($mediumCard = getCard($mediumCards, $mediumIndex))
+                                    <x-card :card="$mediumCard" />
+                                @else
+                                    <div
+                                        class="bg-gray-100 rounded-lg h-full flex items-center justify-center text-gray-400">
+                                        Pas de carte moyenne disponible
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- Position 14: 1x1 (small) --}}
+                            <div class="col-start-2 row-start-2 h-full">
+                                @if ($smallCard = getCard($smallCards, $smallIndex))
+                                    <x-card :card="$smallCard" />
+                                @else
+                                    <div
+                                        class="bg-gray-100 rounded-lg h-full flex items-center justify-center text-gray-400">
+                                        Pas de carte petite disponible
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- Position 15: 1x1 (small) --}}
+                            <div class="col-start-3 row-start-2 h-full">
+                                @if ($smallCard = getCard($smallCards, $smallIndex))
+                                    <x-card :card="$smallCard" />
+                                @else
+                                    <div
+                                        class="bg-gray-100 rounded-lg h-full flex items-center justify-center text-gray-400">
+                                        Pas de carte petite disponible
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- Position 4-5 (row 2): 2x1 (medium) --}}
+                            <div class="col-span-2 col-start-4 row-start-2 h-full">
+                                @if ($mediumCard = getCard($mediumCards, $mediumIndex))
+                                    <x-card :card="$mediumCard" />
+                                @else
+                                    <div
+                                        class="bg-gray-100 rounded-lg h-full flex items-center justify-center text-gray-400">
+                                        Pas de carte moyenne disponible
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- Position 17: 2x1 (medium) --}}
+                            <div class="col-span-2 col-start-1 row-start-3 h-full">
+                                @if ($mediumCard = getCard($mediumCards, $mediumIndex))
+                                    <x-card :card="$mediumCard" />
+                                @else
+                                    <div
+                                        class="bg-gray-100 rounded-lg h-full flex items-center justify-center text-gray-400">
+                                        Pas de carte moyenne disponible
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- Position 16: 1x2 (large) --}}
+                            <div class="row-span-2 col-start-3 row-start-3 h-full">
+                                @if ($largeCard = getCard($largeCards, $largeIndex))
+                                    <x-card :card="$largeCard" />
+                                @else
+                                    <div
+                                        class="bg-gray-100 rounded-lg h-full flex items-center justify-center text-gray-400">
+                                        Pas de carte large disponible
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- Position 4-5 (row 3): 2x2 (large) --}}
+                            <div class="col-span-2 row-span-2 col-start-4 row-start-3 h-full">
+                                @if ($largeCard = getCard($largeCards, $largeIndex))
+                                    <x-card :card="$largeCard" />
+                                @else
+                                    <div
+                                        class="bg-gray-100 rounded-lg h-full flex items-center justify-center text-gray-400">
+                                        Pas de carte large disponible
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- Position 18: 1x1 (small) --}}
+                            <div class="row-start-4 col-start-1 h-full">
+                                @if ($smallCard = getCard($smallCards, $smallIndex))
+                                    <x-card :card="$smallCard" />
+                                @else
+                                    <div
+                                        class="bg-gray-100 rounded-lg h-full flex items-center justify-center text-gray-400">
+                                        Pas de carte petite disponible
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- Position 19: 1x1 (small) --}}
+                            <div class="row-start-4 col-start-2 h-full">
+                                @if ($smallCard = getCard($smallCards, $smallIndex))
+                                    <x-card :card="$smallCard" />
+                                @else
+                                    <div
+                                        class="bg-gray-100 rounded-lg h-full flex items-center justify-center text-gray-400">
+                                        Pas de carte petite disponible
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- Position 1-3 (row 5): 3x1 (custom) --}}
+                            <div class="col-span-3 row-start-5 h-full">
+                                @if ($mediumCard = getCard($mediumCards, $mediumIndex))
+                                    <x-card :card="$mediumCard" />
+                                @else
+                                    <div
+                                        class="bg-gray-100 rounded-lg h-full flex items-center justify-center text-gray-400">
+                                        Pas de carte moyenne disponible
+                                    </div>
+                                @endif
+                            </div>
+
+                            {{-- Position 4-5 (row 5): 2x1 (medium) --}}
+                            <div class="col-span-2 col-start-4 row-start-5 h-full">
+                                @if ($mediumCard = getCard($mediumCards, $mediumIndex))
+                                    <x-card :card="$mediumCard" />
+                                @else
+                                    <div
+                                        class="bg-gray-100 rounded-lg h-full flex items-center justify-center text-gray-400">
+                                        Pas de carte moyenne disponible
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -144,30 +307,30 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('shuffle-btn')?.addEventListener('click', shuffleCards);
-
-            function shuffleCards() {
-                const cards = Array.from(document.querySelectorAll('.card-wrapper'));
-
-                if (cards.length <= 1) return;
-
-                const shuffled = cards
-                    .map(value => ({
-                        value,
-                        sort: Math.random()
-                    }))
-                    .sort((a, b) => a.sort - b.sort)
-                    .map(({
-                        value
-                    }) => value);
-
-                const columns = document.querySelectorAll('.grid.gap-6');
-
-                shuffled.forEach((card, index) => {
-                    const columnIndex = index % columns.length;
-                    columns[columnIndex].appendChild(card);
-                });
-            }
+            document.getElementById('shuffle-btn')?.addEventListener('click', function() {
+                window.location.reload();
+            });
         });
     </script>
+
+    @if (!$cards->isEmpty())
+        <script>
+            function bentoGrid() {
+                return {
+                    itemSizes: {},
+                    init() {
+                        @foreach ($cards as $card)
+                            @if ($card->cardSize->name === 'Petit')
+                                this.itemSizes[{{ $card->id }}] = 'small';
+                            @elseif ($card->cardSize->name === 'Moyen')
+                                this.itemSizes[{{ $card->id }}] = 'wide';
+                            @else
+                                this.itemSizes[{{ $card->id }}] = 'large';
+                            @endif
+                        @endforeach
+                    }
+                }
+            }
+        </script>
+    @endif
 </x-app-layout>
