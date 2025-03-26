@@ -25,15 +25,15 @@ class CardFactory extends Factory
     {
         return [
             'title' => fake()->sentence(4),
-            'image' => fake()->word(),
-            'music' => fake()->word(),
-            'video' => fake()->word(),
+            'image' => fake()->optional()->word(),
+            'music' => fake()->optional()->word(),
+            'video' => fake()->optional()->word(),
             'description' => fake()->text(),
             'deleted' => fake()->boolean(),
             'creation_date' => fake()->date(),
             'user_id' => User::factory(),
             'category_id' => Category::factory(),
-            'card_size_id' => CardSize::factory(),
+            'card_size_id' => 0,
         ];
     }
 }
