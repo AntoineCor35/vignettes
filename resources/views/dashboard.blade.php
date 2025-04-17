@@ -76,86 +76,27 @@
                     </div>
 
                     <div class="mt-8 mb-6">
-                        <h4 class="text-lg font-medium text-gray-900 mb-4">{{ __('Mes cartes récentes') }}</h4>
+                        <h4 class="text-lg font-medium text-gray-900 mb-4">{{ __('Mes cartes') }}</h4>
 
-                        {{-- Récupérer les cartes récentes de l'utilisateur --}}
+                        {{-- Récupérer les cartes de l'utilisateur --}}
                         @php
-                            $recentCards = Auth::user()->cards()->latest()->take(3)->get();
+                            $userCards =
+                                Auth::user()->role === 'admin'
+                                    ? App\Models\Card::with('media')->where('deleted', false)->get()
+                                    : Auth::user()->cards()->with('media')->where('deleted', false)->get();
                         @endphp
 
-                        @if ($recentCards->isEmpty())
+                        @if ($userCards->isEmpty())
                             <div class="bg-gray-50 p-4 rounded-md">
                                 <p class="text-sm text-gray-700">Vous n'avez pas encore créé de cartes.</p>
                             </div>
                         @else
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                @foreach ($recentCards as $card)
-                                    <div
-                                        class="bg-gray-50 p-4 rounded-md shadow-sm hover:shadow-md transition duration-200">
-                                        <h5 class="font-semibold mb-2">{{ $card->title }}</h5>
-
-                                        {{-- Utiliser les thumbnails optimisés pour les médias --}}
-                                        <div class="h-32 w-full mb-2 rounded-md overflow-hidden">
-                                            @if ($card->hasMedia('images'))
-                                                <img src="{{ $card->getFirstMediaUrl('images', 'grid') }}"
-                                                    alt="{{ $card->title }}" class="w-full h-full object-cover">
-                                            @elseif ($card->hasMedia('videos'))
-                                                <div
-                                                    class="relative w-full h-full bg-black flex items-center justify-center">
-                                                    @if ($card->getFirstMedia('videos')->hasGeneratedConversion('thumb'))
-                                                        <img src="{{ $card->getFirstMedia('videos')->getUrl('thumb') }}"
-                                                            alt="Aperçu vidéo"
-                                                            class="max-w-full max-h-full object-contain">
-                                                    @else
-                                                        <div
-                                                            class="bg-gray-200 w-full h-full flex items-center justify-center">
-                                                            <span class="text-gray-500">Aperçu vidéo</span>
-                                                        </div>
-                                                    @endif
-                                                    <div class="absolute inset-0 flex items-center justify-center">
-                                                        <div
-                                                            class="w-10 h-10 bg-white bg-opacity-75 rounded-full flex items-center justify-center">
-                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                class="h-5 w-5 text-indigo-600" fill="none"
-                                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                            </svg>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @elseif ($card->hasMedia('music'))
-                                                <div class="w-full h-full bg-gray-100 flex items-center justify-center">
-                                                    <div class="text-center">
-                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                            class="h-10 w-10 text-indigo-400 mx-auto" fill="none"
-                                                            viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2"
-                                                                d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-                                                        </svg>
-                                                        <span class="text-xs text-gray-700">Fichier audio</span>
-                                                    </div>
-                                                </div>
-                                            @else
-                                                <div class="w-full h-full bg-gray-100 flex items-center justify-center">
-                                                    <span class="text-gray-500">Aucun média</span>
-                                                </div>
-                                            @endif
-                                        </div>
-
-                                        <p class="text-sm text-gray-600 mb-3">{{ Str::limit($card->description, 100) }}
-                                        </p>
-                                        <a href="{{ route('cards.show', $card) }}"
-                                            class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
-                                            Voir la carte →
-                                        </a>
-                                    </div>
-                                @endforeach
+                            <div x-data="bentoGrid()" class="space-y-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                    @foreach ($userCards as $card)
+                                        <x-card :card="$card" :showActions="true" />
+                                    @endforeach
+                                </div>
                             </div>
                         @endif
                     </div>
@@ -184,4 +125,24 @@
             </div>
         </div>
     </div>
+
+    <!-- Alpine.js Script -->
+    <script>
+        function bentoGrid() {
+            return {
+                itemSizes: {},
+                init() {
+                    @foreach ($userCards as $card)
+                        @if ($card->cardSize->name === 'Petit')
+                            this.itemSizes[{{ $card->id }}] = 'small';
+                        @elseif ($card->cardSize->name === 'Moyen')
+                            this.itemSizes[{{ $card->id }}] = 'wide';
+                        @else
+                            this.itemSizes[{{ $card->id }}] = 'large';
+                        @endif
+                    @endforeach
+                },
+            }
+        }
+    </script>
 </x-app-layout>

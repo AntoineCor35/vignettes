@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Card;
 use App\Models\Category;
 use App\Models\CardSize;
+use App\Http\Requests\CardRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -42,27 +43,14 @@ class CardController extends Controller
         return view('cards.create', compact('categories', 'cardSizes'));
     }
 
-    public function store(Request $request)
+    public function store(CardRequest $request)
     {
         $this->authorize('create', Card::class);
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'category_id' => 'required|exists:categories,id',
-            'card_size_id' => 'required|exists:card_sizes,id',
-            'image' => 'nullable|file|mimes:jpg,jpeg,png,gif,webp|max:10240',
-            'video' => 'nullable|file|mimes:mp4,mov,avi,webm,mkv,flv,m4v,3gp|max:102400',
-            'music' => 'nullable|file|mimes:mp3,wav,ogg,m4a,aac,flac|max:20480',
-        ]);
-
+        $validated = $request->validated();
         $hasImage = $request->hasFile('image');
         $hasVideo = $request->hasFile('video');
         $hasMusic = $request->hasFile('music');
-
-        if ($hasVideo && ($hasImage || $hasMusic)) {
-            return back()->withInput()->withErrors(['media' => 'La vidéo doit être seule.']);
-        }
 
         $card = Card::create([
             'title' => $validated['title'],
@@ -91,11 +79,8 @@ class CardController extends Controller
         return redirect()->route('cards.show', $card)->with('success', 'Carte créée avec succès !');
     }
 
-
     public function show(Card $card)
     {
-        // $this->authorize('view', $card);
-
         return view('cards.show', compact('card'));
     }
 
@@ -109,23 +94,11 @@ class CardController extends Controller
         return view('cards.edit', compact('card', 'categories', 'cardSizes'));
     }
 
-    public function update(Request $request, Card $card)
+    public function update(CardRequest $request, Card $card)
     {
         $this->authorize('update', $card);
 
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'category_id' => 'required|exists:categories,id',
-            'card_size_id' => 'required|exists:card_sizes,id',
-            'image' => 'nullable|file|mimes:jpg,jpeg,png,gif,webp|max:10240',
-            'video' => 'nullable|file|mimes:mp4,mov,avi,webm,mkv,flv,m4v,3gp|max:102400',
-            'music' => 'nullable|file|mimes:mp3,wav,ogg,m4a,aac,flac|max:20480',
-            'remove_image' => 'nullable|boolean',
-            'remove_video' => 'nullable|boolean',
-            'remove_music' => 'nullable|boolean',
-        ]);
-
+        $validated = $request->validated();
         $hasImage = $request->hasFile('image');
         $hasVideo = $request->hasFile('video');
         $hasMusic = $request->hasFile('music');
@@ -133,10 +106,6 @@ class CardController extends Controller
         $removeImage = $request->boolean('remove_image');
         $removeVideo = $request->boolean('remove_video');
         $removeMusic = $request->boolean('remove_music');
-
-        if ($hasVideo && ($hasImage || $hasMusic)) {
-            return back()->withInput()->withErrors(['media' => 'La vidéo doit être seule.']);
-        }
 
         $card->update([
             'title' => $validated['title'],
@@ -178,7 +147,6 @@ class CardController extends Controller
 
         return redirect()->route('cards.show', $card)->with('success', 'Carte mise à jour avec succès !');
     }
-
 
     public function destroy(Card $card)
     {

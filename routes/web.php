@@ -4,15 +4,11 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\CardController;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Card;
 
-Route::get('/', function () {
-    $cards = Card::with(['media', 'cardSize', 'category'])
-        ->where('deleted', false)
-        ->get();
-    return view('welcome', compact('cards'));
-});
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
