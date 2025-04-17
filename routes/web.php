@@ -35,4 +35,13 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::resource('categories', CategoryController::class);
 });
 
+Route::get('/landing', function () {
+    $cards = Card::with('media', 'category')
+        ->where('deleted', false)
+        ->latest()
+        ->take(60)
+        ->get();
+    return view('landing', compact('cards'));
+})->name('landing');
+
 require __DIR__ . '/auth.php';
