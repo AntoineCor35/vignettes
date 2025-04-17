@@ -60,19 +60,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <button id="shuffle-btn"
-                            class="flex items-center gap-2 rounded-md border border-gray-300 px-3 py-1.5 text-sm bg-white hover:bg-gray-50">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="16 3 21 3 21 8"></polyline>
-                                <line x1="4" y1="20" x2="21" y2="3"></line>
-                                <polyline points="21 16 21 21 16 21"></polyline>
-                                <line x1="15" y1="15" x2="21" y2="21"></line>
-                                <line x1="4" y1="4" x2="9" y2="9"></line>
-                            </svg>
-                            Mélanger
-                        </button>
                     </div>
 
                     @if ($cards->isEmpty())
@@ -106,8 +93,7 @@
                     @else
                         <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4">
                             @foreach ($cards as $card)
-                                <div
-                                    class="break-inside-avoid mb-4 {{ $card->cardSize->name === 'Grand' ? 'md:col-span-2' : '' }}">
+                                <div class="break-inside-avoid mb-4">
                                     <x-card :card="$card" />
                                 </div>
                             @endforeach
