@@ -25,10 +25,6 @@
                             {{ __('Mes Cartes') }}
                         </x-nav-link>
 
-                        <x-nav-link :href="route('cards.create')" :active="request()->routeIs('cards.create')">
-                            {{ __('Créer une Carte') }}
-                        </x-nav-link>
-
                         @if (Auth::user() && Auth::user()->role === 'admin')
                             <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
                                 {{ __('Gestion des utilisateurs') }}
@@ -52,6 +48,15 @@
             <!-- Settings Dropdown -->
             @auth
                 <div class="hidden sm:flex sm:items-center sm:ms-6">
+                    <a href="{{ route('cards.create') }}"
+                        class="inline-flex items-center px-5 py-2.5 mr-4 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        {{ __('Créer une Carte') }}
+                    </a>
+
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
                             <button
