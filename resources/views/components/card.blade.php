@@ -1,4 +1,4 @@
-@props(['card', 'detailed' => false, 'showActions' => false])
+@props(['card', 'detailed' => false, 'showActions' => false, 'size' => 'medium'])
 
 @php
     $categoryColors = [
@@ -17,12 +17,11 @@
     $cardId = $card->id;
     $modalId = "card-modal-{$cardId}";
 
-    // Déterminer la taille de la carte
-    $cardSizeName = $card->cardSize->name ?? 'Moyen';
-
     // Classes de ratio d'aspect selon la taille
-$aspectRatioClass = match ($cardSizeName) {
-    'Moyen' => 'aspect-[3/8]', // Plus haut pour les cartes moyennes
+$aspectRatioClass = match ($size) {
+    'small' => 'aspect-square', // Petit (1x1)
+    'wide' => 'aspect-[2/1]', // Large (2x1)
+    'large' => 'aspect-square col-span-2 row-span-2', // Grand (2x2)
     default => 'aspect-[3/4]', // Ratio standard pour les autres
     };
 @endphp

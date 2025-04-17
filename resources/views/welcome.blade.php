@@ -91,11 +91,24 @@
                             @endauth
                         </div>
                     @else
-                        <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4">
+                        <!-- Grille dynamique basée sur les tailles définies dans le modèle -->
+                        <div class="grid grid-cols-4 gap-4">
                             @foreach ($cards as $card)
-                                <div class="break-inside-avoid mb-4">
-                                    <x-card :card="$card" />
-                                </div>
+                                @if (!$card->deleted)
+                                    @if ($card->cardSize->name === 'Grand')
+                                        <div class="col-span-2 row-span-2">
+                                            <x-card :card="$card" size="large" />
+                                        </div>
+                                    @elseif ($card->cardSize->name === 'Moyen')
+                                        <div class="col-span-2">
+                                            <x-card :card="$card" size="wide" />
+                                        </div>
+                                    @else
+                                        <div>
+                                            <x-card :card="$card" size="small" />
+                                        </div>
+                                    @endif
+                                @endif
                             @endforeach
                         </div>
                     @endif
