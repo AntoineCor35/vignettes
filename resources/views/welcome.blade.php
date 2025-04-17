@@ -103,12 +103,4 @@
             </div>
         </div>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('shuffle-btn')?.addEventListener('click', function() {
-                window.location.reload();
-            });
-        });
-    </script>
 </x-app-layout>
