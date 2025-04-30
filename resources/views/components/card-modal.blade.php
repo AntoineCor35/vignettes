@@ -90,7 +90,7 @@
                 @if (auth()->check() && auth()->user()->role === 'admin' && auth()->id() !== $card->user_id)
                     <div class="mb-4 bg-yellow-50 text-yellow-700 px-4 py-2 rounded-md">
                         <div class="font-medium">Propriétaire:</div>
-                        <div>{{ $card->user->name }}</div>
+                        <div>{{ $card->user->anonymous_name }}</div>
                         <div class="text-sm">{{ $card->user->email }}</div>
                     </div>
                 @endif

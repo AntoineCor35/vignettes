@@ -43,7 +43,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap border-b border-gray-200">
                                             {{ $user->id }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap border-b border-gray-200">
-                                            {{ $user->name }}</td>
+                                            {{ $user->anonymous_name }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap border-b border-gray-200">
                                             {{ $user->email }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap border-b border-gray-200">

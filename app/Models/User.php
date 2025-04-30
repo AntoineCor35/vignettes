@@ -78,4 +78,17 @@ class User extends Authenticatable
     {
         return $this->hasMany(Card::class);
     }
+
+    /**
+     * Get the anonymous name for the user
+     * 
+     * @return string
+     */
+    public function getAnonymousNameAttribute(): string
+    {
+        if ($this->role === 'admin') {
+            return $this->name . ' (Admin)';
+        }
+        return 'Utilisateur #' . $this->id;
+    }
 }
