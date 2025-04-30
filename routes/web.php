@@ -8,7 +8,18 @@ use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Card;
 
-Route::get('/', [HomeController::class, 'index'])->name('home');
+// Landing page comme page d'accueil
+Route::get('/', function () {
+    $cards = Card::with('media', 'category')
+        ->where('deleted', false)
+        ->latest()
+        ->take(60)
+        ->get();
+    return view('landing', compact('cards'));
+})->name('landing');
+
+// Ancienne page d'accueil déplacée vers /home
+Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -34,14 +45,5 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     // Gestion des catégories
     Route::resource('categories', CategoryController::class);
 });
-
-Route::get('/landing', function () {
-    $cards = Card::with('media', 'category')
-        ->where('deleted', false)
-        ->latest()
-        ->take(60)
-        ->get();
-    return view('landing', compact('cards'));
-})->name('landing');
 
 require __DIR__ . '/auth.php';
