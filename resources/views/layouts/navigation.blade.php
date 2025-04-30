@@ -6,12 +6,16 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('home') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                        <x-application-logo class="block h-16 w-auto" />
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('landing')" :active="request()->routeIs('landing')">
+                        {{ __('Landing Page') }}
+                    </x-nav-link>
+
                     <x-nav-link :href="route('home')" :active="request()->routeIs('home')">
                         {{ __('Accueil') }}
                     </x-nav-link>
@@ -23,10 +27,6 @@
 
                         <x-nav-link :href="route('cards.index')" :active="request()->routeIs('cards.index')">
                             {{ __('Mes Cartes') }}
-                        </x-nav-link>
-
-                        <x-nav-link :href="route('cards.create')" :active="request()->routeIs('cards.create')">
-                            {{ __('Créer une Carte') }}
                         </x-nav-link>
 
                         @if (Auth::user() && Auth::user()->role === 'admin')
@@ -52,6 +52,15 @@
             <!-- Settings Dropdown -->
             @auth
                 <div class="hidden sm:flex sm:items-center sm:ms-6">
+                    <a href="{{ route('cards.create') }}"
+                        class="inline-flex items-center px-5 py-2.5 mr-4 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:bg-indigo-700 active:bg-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        {{ __('Créer une Carte') }}
+                    </a>
+
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
                             <button
@@ -108,6 +117,10 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{ 'block': open, 'hidden': !open }" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
+            <x-responsive-nav-link :href="route('landing')" :active="request()->routeIs('landing')">
+                {{ __('Landing Page') }}
+            </x-responsive-nav-link>
+
             <x-responsive-nav-link :href="route('home')" :active="request()->routeIs('home')">
                 {{ __('Accueil') }}
             </x-responsive-nav-link>
