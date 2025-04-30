@@ -6,6 +6,28 @@
 
 Vign8 (prononcé "vigneight" ou "vignette") est une plateforme moderne de partage de contenu multimédia inspirée de Pinterest, permettant aux utilisateurs de créer et partager des cartes contenant des vidéos, de la musique et des photos dans un format de type "bento box".
 
+## 📚 À propos
+
+Ce projet a été réalisé dans le cadre du cours de [Erwan Duclos](https://gitlab.com/docusland-courses/php/vignettes/), explorant les concepts avancés de développement web avec Laravel.
+
+### 🌐 Démo en ligne
+
+Le projet est déployé et accessible à l'adresse suivante : [pinterest.kindr.fr](https://pinterest.kindr.fr)
+
+### 👥 Comptes de test
+
+Pour tester l'application, vous pouvez utiliser les comptes suivants :
+
+**Compte Administrateur :**
+
+-   Email : admin@example.com
+-   Mot de passe : password
+
+**Compte Utilisateur :**
+
+-   Email : user@example.com
+-   Mot de passe : password
+
 ## 🚀 Fonctionnalités
 
 -   **Partage de contenu multimédia** : Support pour les vidéos, la musique et les photos
