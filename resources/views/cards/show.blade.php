@@ -64,7 +64,7 @@
                                 <dd>
                                     <a href="{{ route('home', ['author' => $card->user_id]) }}"
                                         class="text-indigo-600 hover:text-indigo-800 hover:underline">
-                                        {{ $card->user->anonymous_name }}
+                                        {{ $card->user->display_name }}
                                     </a>
                                 </dd>
                             </p>

@@ -25,7 +25,10 @@
                                         ID</th>
                                     <th
                                         class="px-6 py-3 border-b-2 border-gray-300 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        Nom</th>
+                                        Nom réel</th>
+                                    <th
+                                        class="px-6 py-3 border-b-2 border-gray-300 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        Nom d'affichage</th>
                                     <th
                                         class="px-6 py-3 border-b-2 border-gray-300 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                         Email</th>
@@ -43,7 +46,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap border-b border-gray-200">
                                             {{ $user->id }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap border-b border-gray-200">
-                                            {{ $user->anonymous_name }}</td>
+                                            {{ $user->real_name }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap border-b border-gray-200">
                                             {{ $user->email }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap border-b border-gray-200">

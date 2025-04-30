@@ -22,7 +22,7 @@
                                             @if (isset($activeCategory))
                                                 |
                                             @endif
-                                            Auteur : <span class="font-medium">{{ $activeAuthor->name }}</span>
+                                            Auteur : <span class="font-medium">{{ $activeAuthor->display_name }}</span>
                                         @endif
                                     </div>
                                 </div>
