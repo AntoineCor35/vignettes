@@ -50,7 +50,7 @@ class CardController extends Controller
             Log::info('Début de la création de carte', [
                 'user_id' => Auth::id(),
                 'user_role' => Auth::user()->role,
-                'user_name' => Auth::user()->name,
+                'user_name' => Auth::user()->display_name,
                 'request_data' => $request->all()
             ]);
 
@@ -139,7 +139,7 @@ class CardController extends Controller
                 'trace' => $e->getTraceAsString(),
                 'user' => [
                     'id' => Auth::user()->id,
-                    'name' => Auth::user()->name,
+                    'name' => Auth::user()->display_name,
                     'email' => Auth::user()->email,
                     'role' => Auth::user()->role
                 ],
