@@ -9,6 +9,7 @@ use App\Http\Requests\CardRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class CardController extends Controller
@@ -45,38 +46,60 @@ class CardController extends Controller
 
     public function store(CardRequest $request)
     {
-        $this->authorize('create', Card::class);
+        try {
+            Log::info('Début de la création de carte', ['user_id' => Auth::id()]);
 
-        $validated = $request->validated();
-        $hasImage = $request->hasFile('image');
-        $hasVideo = $request->hasFile('video');
-        $hasMusic = $request->hasFile('music');
+            $this->authorize('create', Card::class);
+            Log::info('Autorisation vérifiée');
 
-        $card = Card::create([
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'category_id' => $validated['category_id'],
-            'card_size_id' => Gate::allows('change-card-size')
-                ? $validated['card_size_id']
-                : CardSize::where('name', 'Petit')->first()->getKey(),
-            'user_id' => Auth::id(),
-            'creation_date' => now(),
-            'deleted' => false,
-        ]);
+            $validated = $request->validated();
+            Log::info('Données validées', ['validated' => $validated]);
 
-        if ($hasImage) {
-            $card->addMediaFromRequest('image')->toMediaCollection('images');
+            $hasImage = $request->hasFile('image');
+            $hasVideo = $request->hasFile('video');
+            $hasMusic = $request->hasFile('music');
+            Log::info('Fichiers vérifiés', ['hasImage' => $hasImage, 'hasVideo' => $hasVideo, 'hasMusic' => $hasMusic]);
+
+            $card = Card::create([
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'category_id' => $validated['category_id'],
+                'card_size_id' => Gate::allows('change-card-size')
+                    ? $validated['card_size_id']
+                    : CardSize::where('name', 'Petit')->first()->getKey(),
+                'user_id' => Auth::id(),
+                'creation_date' => now(),
+                'deleted' => false,
+            ]);
+            Log::info('Carte créée', ['card_id' => $card->id]);
+
+            if ($hasImage) {
+                Log::info('Ajout de l\'image');
+                $card->addMediaFromRequest('image')->toMediaCollection('images');
+                Log::info('Image ajoutée');
+            }
+
+            if ($hasVideo) {
+                Log::info('Ajout de la vidéo');
+                $card->addMediaFromRequest('video')->toMediaCollection('videos');
+                Log::info('Vidéo ajoutée');
+            }
+
+            if ($hasMusic) {
+                Log::info('Ajout de la musique');
+                $card->addMediaFromRequest('music')->toMediaCollection('music');
+                Log::info('Musique ajoutée');
+            }
+
+            Log::info('Carte créée avec succès', ['card_id' => $card->id]);
+            return redirect()->route('cards.show', $card)->with('success', 'Carte créée avec succès !');
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la création de la carte', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return back()->with('error', 'Une erreur est survenue lors de la création de la carte. Veuillez réessayer.');
         }
-
-        if ($hasVideo) {
-            $card->addMediaFromRequest('video')->toMediaCollection('videos');
-        }
-
-        if ($hasMusic) {
-            $card->addMediaFromRequest('music')->toMediaCollection('music');
-        }
-
-        return redirect()->route('cards.show', $card)->with('success', 'Carte créée avec succès !');
     }
 
     public function show(Card $card)
