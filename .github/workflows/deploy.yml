@@ -64,7 +64,7 @@ jobs:
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           REMOTE_PORT: 65002
           SOURCE: ./
-          TARGET: /home/u637719845/domains/groop.kindr.fr/
+          TARGET: /home/u637719845/domains/pinterest.kindr.fr/
           EXCLUDE: "**/.git*,**/.git*/**,**/node_modules/**,**/tests/**,**/storage/framework/cache/**,**/storage/logs/**,**/vendor/bin/**,**/.github/**,**/.env.example,**/.gitignore,**/README.md"
 
       - name: Setup SSH key for remote commands
@@ -77,7 +77,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_rsa -p 65002 -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} << 'EOF'
             export PATH="$HOME/bin:$PATH"
-            cd /home/u637719845/domains/groop.kindr.fr/
+            cd /home/u637719845/domains/pinterest.kindr.fr/
 
             # Créer les dossiers nécessaires et fixer les permissions
             mkdir -p storage/logs storage/framework/{cache,sessions,views} bootstrap/cache
