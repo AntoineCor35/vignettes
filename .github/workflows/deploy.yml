@@ -87,13 +87,25 @@ jobs:
             rm -rf public_html
             ln -s public public_html
 
+            # Nettoyer tous les caches
+            php artisan cache:clear
+            php artisan config:clear
+            php artisan route:clear
+            php artisan view:clear
+
             # Installer les dépendances PHP avec Composer 2 local
             composer install --no-dev --optimize-autoloader
 
             # Exécuter les commandes Laravel
             php artisan migrate:fresh --force --seed
             php artisan storage:link
+
+            # Reconstruire les caches avec la nouvelle URL
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
+
+            # Fixer les permissions finales
+            chown -R www-data:www-data storage bootstrap/cache
+            chmod -R 775 storage bootstrap/cache
           EOF
