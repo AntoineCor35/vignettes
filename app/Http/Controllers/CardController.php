@@ -47,18 +47,40 @@ class CardController extends Controller
     public function store(CardRequest $request)
     {
         try {
-            Log::info('Début de la création de carte', ['user_id' => Auth::id()]);
+            Log::info('Début de la création de carte', [
+                'user_id' => Auth::id(),
+                'user_role' => Auth::user()->role,
+                'user_name' => Auth::user()->name,
+                'request_data' => $request->all()
+            ]);
 
             $this->authorize('create', Card::class);
             Log::info('Autorisation vérifiée');
 
             $validated = $request->validated();
-            Log::info('Données validées', ['validated' => $validated]);
+            Log::info('Données validées', [
+                'validated' => $validated,
+                'card_size' => CardSize::find($validated['card_size_id']),
+                'category' => Category::find($validated['category_id'])
+            ]);
 
             $hasImage = $request->hasFile('image');
             $hasVideo = $request->hasFile('video');
             $hasMusic = $request->hasFile('music');
-            Log::info('Fichiers vérifiés', ['hasImage' => $hasImage, 'hasVideo' => $hasVideo, 'hasMusic' => $hasMusic]);
+            Log::info('Fichiers vérifiés', [
+                'hasImage' => $hasImage,
+                'hasVideo' => $hasVideo,
+                'hasMusic' => $hasMusic,
+                'files' => $request->allFiles()
+            ]);
+
+            // Vérification des permissions de dossier
+            Log::info('Vérification des permissions', [
+                'storage_path' => storage_path(),
+                'public_path' => public_path(),
+                'storage_writable' => is_writable(storage_path()),
+                'public_writable' => is_writable(public_path())
+            ]);
 
             $card = Card::create([
                 'title' => $validated['title'],
@@ -71,24 +93,42 @@ class CardController extends Controller
                 'creation_date' => now(),
                 'deleted' => false,
             ]);
-            Log::info('Carte créée', ['card_id' => $card->id]);
+            Log::info('Carte créée', ['card' => $card->toArray()]);
 
             if ($hasImage) {
-                Log::info('Ajout de l\'image');
+                Log::info('Tentative d\'ajout de l\'image', [
+                    'image_details' => [
+                        'name' => $request->file('image')->getClientOriginalName(),
+                        'size' => $request->file('image')->getSize(),
+                        'mime' => $request->file('image')->getMimeType()
+                    ]
+                ]);
                 $card->addMediaFromRequest('image')->toMediaCollection('images');
-                Log::info('Image ajoutée');
+                Log::info('Image ajoutée avec succès');
             }
 
             if ($hasVideo) {
-                Log::info('Ajout de la vidéo');
+                Log::info('Tentative d\'ajout de la vidéo', [
+                    'video_details' => [
+                        'name' => $request->file('video')->getClientOriginalName(),
+                        'size' => $request->file('video')->getSize(),
+                        'mime' => $request->file('video')->getMimeType()
+                    ]
+                ]);
                 $card->addMediaFromRequest('video')->toMediaCollection('videos');
-                Log::info('Vidéo ajoutée');
+                Log::info('Vidéo ajoutée avec succès');
             }
 
             if ($hasMusic) {
-                Log::info('Ajout de la musique');
+                Log::info('Tentative d\'ajout de la musique', [
+                    'music_details' => [
+                        'name' => $request->file('music')->getClientOriginalName(),
+                        'size' => $request->file('music')->getSize(),
+                        'mime' => $request->file('music')->getMimeType()
+                    ]
+                ]);
                 $card->addMediaFromRequest('music')->toMediaCollection('music');
-                Log::info('Musique ajoutée');
+                Log::info('Musique ajoutée avec succès');
             }
 
             Log::info('Carte créée avec succès', ['card_id' => $card->id]);
@@ -96,7 +136,14 @@ class CardController extends Controller
         } catch (\Exception $e) {
             Log::error('Erreur lors de la création de la carte', [
                 'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
+                'user' => [
+                    'id' => Auth::user()->id,
+                    'name' => Auth::user()->name,
+                    'email' => Auth::user()->email,
+                    'role' => Auth::user()->role
+                ],
+                'request' => $request->all()
             ]);
             return back()->with('error', 'Une erreur est survenue lors de la création de la carte. Veuillez réessayer.');
         }
