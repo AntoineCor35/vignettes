@@ -20,6 +20,8 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'real_name',
+        'display_name',
         'email',
         'password',
         'role',
@@ -80,15 +82,23 @@ class User extends Authenticatable
     }
 
     /**
-     * Get the anonymous name for the user
+     * Get the display name for the user
      * 
      * @return string
      */
-    public function getAnonymousNameAttribute(): string
+    public function getDisplayNameAttribute(): string
     {
         if ($this->role === 'admin') {
-            return $this->name . ' (Admin)';
+            return '#' . $this->attributes['display_name'] . ' (Admin)';
         }
-        return 'Utilisateur #' . $this->id;
+        return '#' . $this->attributes['display_name'];
+    }
+
+    /**
+     * Get the user's real name or display name if real name is not set.
+     */
+    public function getRealOrDisplayName(): string
+    {
+        return $this->real_name ?? $this->display_name;
     }
 }
