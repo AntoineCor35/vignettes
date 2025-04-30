@@ -117,7 +117,7 @@
                             <a href="{{ route('home', ['author' => $card->user_id]) }}"
                                 class="text-indigo-600 hover:text-indigo-800 hover:underline"
                                 @click="$dispatch('close-modal', '{{ $modalId }}')">
-                                {{ $card->user->name }}
+                                {{ $card->user->anonymous_name }}
                             </a>
                         </dd>
 
