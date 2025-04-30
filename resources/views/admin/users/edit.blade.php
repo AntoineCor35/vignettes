@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Modifier l\'utilisateur') }} : {{ $user->name }}
+            {{ __('Modifier l\'utilisateur') }} : {{ $user->display_name }}
         </h2>
     </x-slot>
 
@@ -19,7 +19,7 @@
                         <div class="mt-3 grid grid-cols-2 gap-4">
                             <div>
                                 <p class="text-sm text-gray-500">Nom</p>
-                                <p class="mt-1">{{ $user->name }}</p>
+                                <p class="mt-1">{{ $user->display_name }}</p>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-500">Email</p>

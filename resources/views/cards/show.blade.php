@@ -59,7 +59,15 @@
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <h4 class="text-lg font-semibold mb-2">Créé par</h4>
-                            <p class="text-gray-700">{{ $card->user->name }}</p>
+                            <p class="text-gray-700">
+                                <dt class="text-gray-500">Auteur</dt>
+                                <dd>
+                                    <a href="{{ route('home', ['author' => $card->user_id]) }}"
+                                        class="text-indigo-600 hover:text-indigo-800 hover:underline">
+                                        {{ $card->user->display_name }}
+                                    </a>
+                                </dd>
+                            </p>
                         </div>
                         <div>
                             <h4 class="text-lg font-semibold mb-2">Date de création</h4>

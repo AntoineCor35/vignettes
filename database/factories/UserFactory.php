@@ -5,6 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Models\User;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -23,8 +24,13 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        do {
+            $displayName = str_pad(random_int(1, 99999), 5, '0', STR_PAD_LEFT);
+        } while (User::where('display_name', $displayName)->exists());
+
         return [
             'name' => fake()->name(),
+            'display_name' => $displayName,
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),

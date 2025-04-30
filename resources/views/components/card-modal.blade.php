@@ -90,7 +90,7 @@
                 @if (auth()->check() && auth()->user()->role === 'admin' && auth()->id() !== $card->user_id)
                     <div class="mb-4 bg-yellow-50 text-yellow-700 px-4 py-2 rounded-md">
                         <div class="font-medium">Propriétaire:</div>
-                        <div>{{ $card->user->name }}</div>
+                        <div>{{ $card->user->display_name }}</div>
                         <div class="text-sm">{{ $card->user->email }}</div>
                     </div>
                 @endif
@@ -117,7 +117,7 @@
                             <a href="{{ route('home', ['author' => $card->user_id]) }}"
                                 class="text-indigo-600 hover:text-indigo-800 hover:underline"
                                 @click="$dispatch('close-modal', '{{ $modalId }}')">
-                                {{ $card->user->name }}
+                                {{ $card->user->display_name }}
                             </a>
                         </dd>
 

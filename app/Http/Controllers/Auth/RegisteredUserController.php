@@ -31,12 +31,18 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // Générer un identifiant unique à 5 chiffres
+        do {
+            $displayName = str_pad(random_int(1, 99999), 5, '0', STR_PAD_LEFT);
+        } while (User::where('display_name', $displayName)->exists());
+
         $user = User::create([
             'name' => $request->name,
+            'display_name' => $displayName,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
