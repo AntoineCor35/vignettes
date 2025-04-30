@@ -83,6 +83,10 @@ jobs:
             mkdir -p storage/logs storage/framework/{cache,sessions,views} bootstrap/cache
             chmod -R 775 storage bootstrap/cache
 
+            # Créer le lien symbolique de public vers public_html
+            rm -rf public_html
+            ln -s public public_html
+
             # Installer les dépendances PHP avec Composer 2 local
             composer install --no-dev --optimize-autoloader
 
